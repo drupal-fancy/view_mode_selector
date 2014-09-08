@@ -1,0 +1,126 @@
+<?php
+
+/**
+ * @file
+ * Main file of View Mode Selector module.
+ */
+
+/**
+ * Implements hook_field_info().
+ */
+function view_mode_selector_field_info() {
+  return array(
+    'view_mode_selector' => array(
+      'label' => t('View mode selector'),
+      'description' => t('Stores the view mode of the entity.'),
+      'instance_settings' => array('style' => 'select', 'view_modes' => array()),
+      'settings' => array(),
+      'default_widget' => 'view_mode_selector',
+      'default_formatter' => 'view_mode_selector',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function view_mode_selector_field_is_empty($item, $field) {
+  return FALSE;
+}
+
+/**
+ * Implements hook_field_instance_settings_form().
+ */
+function view_mode_selector_field_instance_settings_form($field, $instance) {
+  $form = array();
+  $settings = $instance['settings'];
+  $entity_info = entity_get_info($instance['entity_type']);
+
+  foreach ($entity_info['view modes'] as $view_mode_name => $view_mode) {
+    if (!isset($form['view_modes'])) {
+      $form['view_modes'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Available view modes'),
+        '#attributes' => array('class' => array('view-mode-selector-view-modes')),
+        '#attached' => array('css' => array(drupal_get_path('module', 'view_mode_selector') . '/css/view-mode-selector.css')),
+      );
+    }
+
+    $form['view_modes'][$view_mode_name]['enable'] = array(
+      '#type' => 'checkbox',
+      '#title' => $view_mode['label'],
+      '#default_value' => isset($settings['view_modes'][$view_mode_name]['enable']) ? $settings['view_modes'][$view_mode_name]['enable'] : FALSE,
+    );
+
+    $form['view_modes'][$view_mode_name]['icon'] = array(
+      '#type' => 'managed_file',
+      '#title' => t('Icon'),
+      '#description' => t('An icon which can be used for a view mode preview.'),
+      '#upload_location' => 'public://view-mode-selector/' . $instance['entity_type'],
+      '#default_value' => isset($settings['view_modes'][$view_mode_name]['icon']) ? $settings['view_modes'][$view_mode_name]['icon'] : 0,
+      '#states' => array(
+        'visible' => array(
+          'input[name="instance[settings][view_modes][' . $view_mode_name . '][enable]"]' => array('checked' => TRUE),
+        ),
+      ),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function view_mode_selector_field_widget_info() {
+  return array(
+    'view_mode_selector_select' => array(
+      'label' => t('Select list'),
+      'field types' => array('view_mode_selector'),
+    ),
+    'view_mode_selector_radios' => array(
+      'label' => t('Radio buttons'),
+      'field types' => array('view_mode_selector'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  if (strpos($instance['widget']['type'], 'view_mode_selector_') === 0) {
+    dpm($instance);
+    $entity_info = entity_get_info($instance['entity_type']);
+
+    foreach ($instance['settings']['view_modes'] as $view_mode => $view_mode_settings) {
+      if ($view_mode_settings['enable']) {
+        $element['#options'][$view_mode] = $entity_info['view modes'][$view_mode]['label'];
+      }
+    }
+  }
+
+  switch ($instance['widget']['type']) {
+    case 'view_mode_selector_select':
+      $element['#type'] = 'select';
+
+      break;
+    case 'view_mode_selector_radios':
+      $element['#type'] = 'radios';
+      foreach ($element['#options'] as $view_mode => $foo) {
+        if ($instance['settings']['view_modes'][$view_mode]['icon']) {
+          $icon = file_load($instance['settings']['view_modes'][$view_mode]['icon']);
+          $element['#options'][$view_mode] = theme('image', array(
+            'path' => file_create_url($icon->uri),
+            'attributes' => array(
+              'title' => $entity_info['view modes'][$view_mode]['label'],
+            ),
+          ));
+        }
+      }
+
+      break;
+  }
+
+  return $element;
+}
