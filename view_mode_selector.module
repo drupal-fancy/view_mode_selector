@@ -13,9 +13,10 @@ function view_mode_selector_field_info() {
     'view_mode_selector' => array(
       'label' => t('View mode selector'),
       'description' => t('Stores the view mode of the entity.'),
-      'instance_settings' => array('style' => 'select', 'view_modes' => array()),
-      'settings' => array(),
-      'default_widget' => 'view_mode_selector',
+      'instance_settings' => array(
+        'view_modes' => array(),
+      ),
+      'default_widget' => 'view_mode_selector_select',
       'default_formatter' => 'view_mode_selector',
     ),
   );
