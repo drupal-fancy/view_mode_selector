@@ -52,18 +52,21 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
       '#default_value' => isset($settings['view_modes'][$view_mode_name]['enable']) ? $settings['view_modes'][$view_mode_name]['enable'] : FALSE,
     );
 
-    $form['view_modes'][$view_mode_name]['icon'] = array(
-      '#type' => 'managed_file',
-      '#title' => t('Icon'),
-      '#description' => t('An icon which can be used for a view mode preview.'),
-      '#upload_location' => 'public://view-mode-selector/' . $instance['entity_type'],
-      '#default_value' => isset($settings['view_modes'][$view_mode_name]['icon']) ? $settings['view_modes'][$view_mode_name]['icon'] : 0,
-      '#states' => array(
-        'visible' => array(
-          'input[name="instance[settings][view_modes][' . $view_mode_name . '][enable]"]' => array('checked' => TRUE),
+    // Allow uploading an icon for view modes when radios style is set.
+    if ($instance['widget']['type'] == 'view_mode_selector_radios') {
+      $form['view_modes'][$view_mode_name]['icon'] = array(
+        '#type' => 'managed_file',
+        '#title' => t('Icon'),
+        '#description' => t('An icon which can be used for a view mode preview.'),
+        '#upload_location' => 'public://view-mode-selector/' . $instance['entity_type'],
+        '#default_value' => isset($settings['view_modes'][$view_mode_name]['icon']) ? $settings['view_modes'][$view_mode_name]['icon'] : 0,
+        '#states' => array(
+          'visible' => array(
+            'input[name="instance[settings][view_modes][' . $view_mode_name . '][enable]"]' => array('checked' => TRUE),
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   return $form;
