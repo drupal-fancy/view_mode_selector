@@ -94,14 +94,16 @@ function view_mode_selector_field_widget_info() {
  * Implements hook_field_widget_form().
  */
 function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  if (strpos($instance['widget']['type'], 'view_mode_selector_') === 0) {
-    dpm($instance);
-    $entity_info = entity_get_info($instance['entity_type']);
+  $entity_info = entity_get_info($instance['entity_type']);
 
-    foreach ($instance['settings']['view_modes'] as $view_mode => $view_mode_settings) {
-      if ($view_mode_settings['enable']) {
-        $element['#options'][$view_mode] = $entity_info['view modes'][$view_mode]['label'];
-      }
+  $element['value'] = $element + array(
+    '#options' => array(),
+    '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
+  );
+
+  foreach ($instance['settings']['view_modes'] as $view_mode => $view_mode_settings) {
+    if ($view_mode_settings['enable']) {
+      $element['value']['#options'][$view_mode] = $entity_info['view modes'][$view_mode]['label'];
     }
   }
 
