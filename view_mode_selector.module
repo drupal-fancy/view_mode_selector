@@ -169,3 +169,14 @@ function view_mode_selector_field_formatter_view($entity_type, $entity, $field, 
 
   return $element;
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function view_mode_selector_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
+  if ($form['#field']['type'] == 'view_mode_selector') {
+    // Don't allow more than one value for a view mode selector field.
+    $form['field']['cardinality']['#access'] = FALSE;
+    $form['field']['cardinality']['#value'] = 1;
+  }
+}
