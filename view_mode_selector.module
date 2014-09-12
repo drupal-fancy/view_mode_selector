@@ -84,6 +84,7 @@ function view_mode_selector_field_widget_info() {
     'view_mode_selector_radios' => array(
       'label' => t('Radio buttons'),
       'field types' => array('view_mode_selector'),
+      'weight' => 1,
     ),
   );
 }
