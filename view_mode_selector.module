@@ -180,3 +180,28 @@ function view_mode_selector_form_field_ui_field_edit_form_alter(&$form, &$form_s
     $form['field']['cardinality']['#value'] = 1;
   }
 }
+
+/**
+ * Implements hook_entity_view_mode_alter().
+ */
+function view_mode_selector_entity_view_mode_alter(&$view_mode, $context) {
+  list(, , $bundle) = entity_extract_ids($context['entity_type'], $context['entity']);
+  $fields_info = field_info_instances($context['entity_type'], $bundle);
+
+  // Find a view mode selector field and change the view mode.
+  foreach ($fields_info as $field_name => $value) {
+    $field_info = field_info_field($field_name);
+
+    if ($field_info['type'] == 'view_mode_selector') {
+      $items = field_get_items($context['entity_type'], $context['entity'], $field_info['field_name']);
+
+      if ($items) {
+        $value = $items[0]['value'];
+
+        if ($value) {
+          $view_mode = $value;
+        }
+      }
+    }
+  }
+}
