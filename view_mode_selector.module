@@ -25,7 +25,7 @@ function view_mode_selector_field_info() {
  * Implements hook_field_is_empty().
  */
 function view_mode_selector_field_is_empty($item, $field) {
-  return FALSE;
+  return (bool) $item['value'];
 }
 
 /**
