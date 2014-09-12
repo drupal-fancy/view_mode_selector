@@ -138,3 +138,34 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
 
   return $element;
 }
+
+/**
+* Implements hook_field_formatter_info().
+*/
+function view_mode_selector_field_formatter_info() {
+  return array(
+    'view_mode_selector' => array(
+      'label' => t('Default'),
+      'field types' => array('view_mode_selector'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function view_mode_selector_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    case 'view_mode_selector':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          '#markup' => $item['value'],
+        );
+      }
+      break;
+  }
+
+  return $element;
+}
