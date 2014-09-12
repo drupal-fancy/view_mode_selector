@@ -109,15 +109,22 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
 
   switch ($instance['widget']['type']) {
     case 'view_mode_selector_select':
-      $element['#type'] = 'select';
+      $element['value']['#type'] = 'select';
+      $element['value']['#empty_option'] = t('None');
 
       break;
     case 'view_mode_selector_radios':
-      $element['#type'] = 'radios';
-      foreach ($element['#options'] as $view_mode => $foo) {
-        if ($instance['settings']['view_modes'][$view_mode]['icon']) {
+      $element['value']['#type'] = 'radios';
+
+      foreach ($element['value']['#options'] as $view_mode => $view_mode_label) {
+        if (!empty($instance['settings']['view_modes'][$view_mode]['icon'])) {
           $icon = file_load($instance['settings']['view_modes'][$view_mode]['icon']);
-          $element['#options'][$view_mode] = theme('image', array(
+
+          if (!$icon) {
+            continue;
+          }
+
+          $element['value']['#options'][$view_mode] = theme('image', array(
             'path' => file_create_url($icon->uri),
             'attributes' => array(
               'title' => $entity_info['view modes'][$view_mode]['label'],
