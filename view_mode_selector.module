@@ -99,6 +99,7 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
   $element['value'] = $element + array(
     '#options' => array(),
     '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
+    '#empty_option' => t('None'),
   );
 
   foreach ($instance['settings']['view_modes'] as $view_mode => $view_mode_settings) {
@@ -110,7 +111,6 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
   switch ($instance['widget']['type']) {
     case 'view_mode_selector_select':
       $element['value']['#type'] = 'select';
-      $element['value']['#empty_option'] = t('None');
 
       break;
     case 'view_mode_selector_radios':
