@@ -163,6 +163,8 @@ function view_mode_selector_field_formatter_view($entity_type, $entity, $field, 
         $element[$delta] = array(
           '#markup' => $item['value'],
         );
+
+        return $element;
       }
       break;
   }
