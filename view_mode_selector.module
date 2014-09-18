@@ -36,8 +36,14 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
   $form = array();
   $settings = $instance['settings'];
   $entity_info = entity_get_info($instance['entity_type']);
+  $view_modes = array(
+      'default' => array(
+        'label' => 'Default'
+      ),
+    ) + $entity_info['view modes'];
+  unset($view_modes['view_mode_selector']);
 
-  foreach ($entity_info['view modes'] as $view_mode_name => $view_mode) {
+  foreach ($view_modes as $view_mode_name => $view_mode) {
     if (!isset($form['view_modes'])) {
       $form['view_modes'] = array(
         '#type' => 'fieldset',
@@ -104,7 +110,8 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
 
   foreach ($instance['settings']['view_modes'] as $view_mode => $view_mode_settings) {
     if ($view_mode_settings['enable']) {
-      $element['value']['#options'][$view_mode] = $entity_info['view modes'][$view_mode]['label'];
+      $label = $entity_info['view modes'][$view_mode]['label'] ? $entity_info['view modes'][$view_mode]['label'] : 'Default';
+      $element['value']['#options'][$view_mode] = $label;
     }
   }
 
@@ -235,8 +242,12 @@ function view_mode_selector_entity_info_alter(&$entity_info) {
  */
 function view_mode_selector_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
   if ($form['#view_mode'] == 'view_mode_selector') {
-    drupal_set_message('This is a placeholder view mode from the view_mode_selector module. It will be replaced by the user selected one.', 'warning');
-    $form['fields']['#access'] = FALSE;
-    $form['actions']['#access'] = FALSE;
+    drupal_set_message('This is a placeholder view mode from the view_mode_selector module. It will be replaced by the user selected one.', 'status');
+    drupal_set_message('Because of a more or less strange Drupal core behavior you need to <strong>enable all fields you want to display</strong> in other view modes. The settings do not matter! Yes, this needs to be fixed!!!', 'warning');
+
+    // Enable all fields.
+    foreach($form['fields'] as $field_name => $field_settings){
+      // @todo Hmm, some magic over here. Cannot find it in $form or $form_state.
+    }
   }
 }
