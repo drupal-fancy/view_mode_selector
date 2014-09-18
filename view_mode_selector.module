@@ -190,6 +190,10 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, $context) {
   list(, , $bundle) = entity_extract_ids($context['entity_type'], $context['entity']);
   $fields_info = field_info_instances($context['entity_type'], $bundle);
 
+  if ($view_mode !== 'view_mode_selector') {
+    return;
+  }
+
   // Find a view mode selector field and change the view mode.
   foreach ($fields_info as $field_name => $value) {
     $field_info = field_info_field($field_name);
@@ -205,5 +209,34 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, $context) {
         }
       }
     }
+  }
+}
+/**
+ * Implements hook_entity_info_alter().
+ * Creates our custom view mode.
+ */
+function view_mode_selector_entity_info_alter(&$entity_info) {
+  $field_infos = field_info_field_map();
+
+  foreach ($field_infos as $field_name => $field_info) {
+    if ($field_info['type'] == 'view_mode_selector') {
+      foreach (array_keys($field_info['bundles']) as $bundle) {
+        $entity_info[$bundle]['view modes']['view_mode_selector'] = array(
+          'label' => t('View mode selector'),
+          'custom settings' => TRUE,
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_field_ui_display_overview_form_alter().
+ */
+function view_mode_selector_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
+  if ($form['#view_mode'] == 'view_mode_selector') {
+    drupal_set_message('This is a placeholder view mode from the view_mode_selector module. It will be replaced by the user selected one.', 'warning');
+    $form['fields']['#access'] = FALSE;
+    $form['actions']['#access'] = FALSE;
   }
 }
