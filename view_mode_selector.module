@@ -207,6 +207,9 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, $context) {
     return;
   }
 
+  // Set to default view mode for all entities without custom view mode.
+  $view_mode = 'default';
+
   // Find a view mode selector field and change the view mode.
   foreach ($fields_info as $field_name => $value) {
     $field_info = field_info_field($field_name);
