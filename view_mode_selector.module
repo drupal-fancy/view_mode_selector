@@ -37,10 +37,10 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
   $settings = $instance['settings'];
   $entity_info = entity_get_info($instance['entity_type']);
   $view_modes = array(
-      'default' => array(
-        'label' => 'Default'
-      ),
-    ) + $entity_info['view modes'];
+    'default' => array(
+      'label' => t('Default'),
+    ),
+  ) + $entity_info['view modes'];
   unset($view_modes['view_mode_selector']);
 
   foreach ($view_modes as $view_mode_name => $view_mode) {
@@ -110,7 +110,7 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
 
   $view_modes = $entity_info['view_modes'] + array(
     'default' => array(
-      'label' => 'Default'
+      'label' => t('Default'),
     ),
   );
 
