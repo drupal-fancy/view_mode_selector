@@ -108,14 +108,14 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
     '#empty_option' => t('None'),
   );
 
-  $view_modes = $entity_info['view_modes'] + array(
+  $view_modes = $entity_info['view modes'] + array(
     'default' => array(
       'label' => t('Default'),
-    ),
+    )
   );
 
   foreach ($view_modes as $view_mode => $view_mode_settings) {
-    if ($view_mode_settings['enable']) {
+    if (isset($view_mode_settings['enable']) && $view_mode_settings['enable']) {
       $label = $view_modes[$view_mode]['label'];
       $element['value']['#options'][$view_mode] = $label;
     }
