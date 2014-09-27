@@ -35,13 +35,8 @@ function view_mode_selector_field_is_empty($item, $field) {
 function view_mode_selector_field_instance_settings_form($field, $instance) {
   $form = array();
   $settings = $instance['settings'];
-  $entity_info = entity_get_info($instance['entity_type']);
-  $view_modes = array(
-    'default' => array(
-      'label' => t('Default'),
-    ),
-  ) + $entity_info['view modes'];
-  unset($view_modes['view_mode_selector']);
+
+  $view_modes = _view_mode_selector_get_view_modes($instance['entity_type']);
 
   foreach ($view_modes as $view_mode_name => $view_mode) {
     if (!isset($form['view_modes'])) {
@@ -100,22 +95,24 @@ function view_mode_selector_field_widget_info() {
  * Implements hook_field_widget_form().
  */
 function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  $entity_info = entity_get_info($instance['entity_type']);
-
   $element['value'] = $element + array(
-    '#options' => array(),
-    '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
-    '#empty_option' => t('None'),
-  );
+      '#options' => array(),
+      '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
+    );
 
-  $view_modes = $entity_info['view modes'] + array(
-    'default' => array(
-      'label' => t('Default'),
-    )
-  );
+  $view_modes = _view_mode_selector_get_view_modes($instance['entity_type']);
 
-  foreach ($instance['settings']['view_modes'] as $view_mode => $view_mode_settings) {
-    if (isset($view_mode_settings['enable']) && $view_mode_settings['enable']) {
+  // Gather enabled view modes.
+  foreach ($view_modes as $view_mode => $view_mode_settings) {
+    if (isset($instance['settings']['view_modes'][$view_mode]) && $instance['settings']['view_modes'][$view_mode]['enable']) {
+      $label = $view_modes[$view_mode]['label'];
+      $element['value']['#options'][$view_mode] = $label;
+    }
+  }
+
+  // If no view modes are enabled, simply show all view modes.
+  if (count($element['value']['#options']) == 0) {
+    foreach ($view_modes as $view_mode => $view_mode_settings) {
       $label = $view_modes[$view_mode]['label'];
       $element['value']['#options'][$view_mode] = $label;
     }
@@ -153,8 +150,8 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
 }
 
 /**
-* Implements hook_field_formatter_info().
-*/
+ * Implements hook_field_formatter_info().
+ */
 function view_mode_selector_field_formatter_info() {
   return array(
     'view_mode_selector' => array(
@@ -259,4 +256,22 @@ function view_mode_selector_form_field_ui_display_overview_form_alter(&$form, &$
       // @todo Hmm, some magic over here. Cannot find it in $form or $form_state.
     }
   }
+}
+
+/**
+ * Returns all activated view modes for an entity type
+ */
+function _view_mode_selector_get_view_modes($entity_type) {
+  $entity_info = entity_get_info($entity_type);
+
+  $view_modes = array(
+      'default' => array(
+        'label' => t('Default'),
+        'custom settings' => TRUE,
+      )
+    ) + $entity_info['view modes'];
+
+  unset($view_modes['view_mode_selector']);
+
+  return $view_modes;
 }
