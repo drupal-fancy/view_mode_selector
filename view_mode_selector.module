@@ -36,7 +36,8 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
   $form = array();
   $settings = $instance['settings'];
 
-  $view_modes = _view_mode_selector_get_view_modes($instance['entity_type']);
+  // Get all view modes of the entity type.
+  $view_modes = view_mode_selector_view_modes($instance['entity_type']);
 
   foreach ($view_modes as $view_mode_name => $view_mode) {
     if (!isset($form['view_modes'])) {
@@ -100,7 +101,8 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
       '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
     );
 
-  $view_modes = _view_mode_selector_get_view_modes($instance['entity_type']);
+  // Get all view modes of the entity type.
+  $view_modes = view_mode_selector_view_modes($instance['entity_type']);
 
   // Gather enabled view modes.
   foreach ($view_modes as $view_mode => $view_mode_settings) {
@@ -259,18 +261,26 @@ function view_mode_selector_form_field_ui_display_overview_form_alter(&$form, &$
 }
 
 /**
- * Returns all activated view modes for an entity type
+ * Helper function which returns all view modes of an entity type.
+ *
+ * @param string $entity_type
+ *   The specific entity type.
+ *
+ * @return array
  */
-function _view_mode_selector_get_view_modes($entity_type) {
+function view_mode_selector_view_modes($entity_type) {
   $entity_info = entity_get_info($entity_type);
 
+  // Add 'Default' view mode to all view modes in order
+  // to allow switching to it.
   $view_modes = array(
-      'default' => array(
-        'label' => t('Default'),
-        'custom settings' => TRUE,
-      )
-    ) + $entity_info['view modes'];
+    'default' => array(
+      'label' => t('Default'),
+      'custom settings' => TRUE,
+    ),
+  ) + $entity_info['view modes'];
 
+  // The 'View mode selector' view mode is only for allow switching.
   unset($view_modes['view_mode_selector']);
 
   return $view_modes;
