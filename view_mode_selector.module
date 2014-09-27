@@ -114,7 +114,7 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
     )
   );
 
-  foreach ($view_modes as $view_mode => $view_mode_settings) {
+  foreach ($instance['settings']['view_modes'] as $view_mode => $view_mode_settings) {
     if (isset($view_mode_settings['enable']) && $view_mode_settings['enable']) {
       $label = $view_modes[$view_mode]['label'];
       $element['value']['#options'][$view_mode] = $label;
