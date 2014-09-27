@@ -97,9 +97,10 @@ function view_mode_selector_field_widget_info() {
  */
 function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   $element['value'] = $element + array(
-      '#options' => array(),
-      '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
-    );
+    '#type' => 'select',
+    '#options' => array(),
+    '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
+  );
 
   // Get all view modes of the entity type.
   $view_modes = view_mode_selector_view_modes($instance['entity_type']);
@@ -112,40 +113,35 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
     }
   }
 
-  // If no view modes are enabled, simply show all view modes.
-  if (count($element['value']['#options']) == 0) {
+  // Show all view modes in widget when no view modes are enabled.
+  if (!count($element['value']['#options'])) {
     foreach ($view_modes as $view_mode => $view_mode_settings) {
       $label = $view_modes[$view_mode]['label'];
       $element['value']['#options'][$view_mode] = $label;
     }
   }
 
-  switch ($instance['widget']['type']) {
-    case 'view_mode_selector_select':
-      $element['value']['#type'] = 'select';
+  // Icon support for radio widget.
+  if ($instance['widget']['type'] == 'view_mode_selector_radios') {
+    $element['value']['#type'] = 'radios';
 
-      break;
-    case 'view_mode_selector_radios':
-      $element['value']['#type'] = 'radios';
+    // Override label with icon if available.
+    foreach ($element['value']['#options'] as $view_mode => $view_mode_label) {
+      if (!empty($instance['settings']['view_modes'][$view_mode]['icon'])) {
+        $icon = file_load($instance['settings']['view_modes'][$view_mode]['icon']);
 
-      foreach ($element['value']['#options'] as $view_mode => $view_mode_label) {
-        if (!empty($instance['settings']['view_modes'][$view_mode]['icon'])) {
-          $icon = file_load($instance['settings']['view_modes'][$view_mode]['icon']);
-
-          if (!$icon) {
-            continue;
-          }
-
-          $element['value']['#options'][$view_mode] = theme('image', array(
-            'path' => file_create_url($icon->uri),
-            'attributes' => array(
-              'title' => $entity_info['view modes'][$view_mode]['label'],
-            ),
-          ));
+        if (!$icon) {
+          continue;
         }
-      }
 
-      break;
+        $element['value']['#options'][$view_mode] = theme('image', array(
+          'path' => file_create_url($icon->uri),
+          'attributes' => array(
+            'title' => $entity_info['view modes'][$view_mode]['label'],
+          ),
+        ));
+      }
+    }
   }
 
   return $element;
@@ -206,7 +202,8 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, $context) {
     return;
   }
 
-  // Set to default view mode for all entities without custom view mode.
+  // Set view mode to 'Default', this is for entites without
+  // a view mode selector field.
   $view_mode = 'default';
 
   // Find a view mode selector field and change the view mode.
@@ -221,6 +218,10 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, $context) {
 
         if ($value) {
           $view_mode = $value;
+
+          // It would not make sense to have multiple view mode selector
+          // fields so stop after the first was found.
+          return;
         }
       }
     }
@@ -228,11 +229,11 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, $context) {
 }
 /**
  * Implements hook_entity_info_alter().
- * Creates our custom view mode.
  */
 function view_mode_selector_entity_info_alter(&$entity_info) {
   $field_infos = field_info_field_map();
 
+  // Create a 'View mode selector' view mode in every bundle.
   foreach ($field_infos as $field_name => $field_info) {
     if ($field_info['type'] == 'view_mode_selector') {
       foreach (array_keys($field_info['bundles']) as $bundle) {
@@ -254,7 +255,7 @@ function view_mode_selector_form_field_ui_display_overview_form_alter(&$form, &$
     drupal_set_message('Because of a more or less strange Drupal core behavior you need to <strong>enable all fields you want to display</strong> in other view modes. The settings do not matter! Yes, this needs to be fixed!!!', 'warning');
 
     // Enable all fields.
-    foreach($form['fields'] as $field_name => $field_settings){
+    foreach ($form['fields'] as $field_name => $field_settings){
       // @todo Hmm, some magic over here. Cannot find it in $form or $form_state.
     }
   }
