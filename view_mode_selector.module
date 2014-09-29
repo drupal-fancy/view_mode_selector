@@ -267,6 +267,7 @@ function view_mode_selector_form_field_ui_display_overview_form_alter(&$form, &$
  *   The specific entity type.
  *
  * @return array
+ *   An array containing all view modes of the entity type.
  */
 function view_mode_selector_view_modes($entity_type) {
   $entity_info = entity_get_info($entity_type);
