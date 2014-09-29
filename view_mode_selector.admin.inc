@@ -103,7 +103,7 @@ function view_mode_selector_config_submit(&$form, &$form_state) {
       continue;
     }
 
-    foreach ($entity_type as $bundle_name => $settings) {
+    foreach ($entity_type as $settings) {
       foreach ($settings as $name => $value) {
         // Skip enable indicator.
         if ($name == '_enable' || $name == '_style') {
