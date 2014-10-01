@@ -22,6 +22,21 @@ function view_mode_selector_field_info() {
   );
 }
 
+
+/**
+ * Implements hook_migrate_api().
+ */
+function view_mode_selector_migrate_api() {
+  $api = array(
+    'api' => 2,
+    'field handlers' => array(
+      'MigrateViewModeSelectorValueFieldHandler',
+    ),
+  );
+
+  return $api;
+}
+
 /**
  * Implements hook_field_is_empty().
  */

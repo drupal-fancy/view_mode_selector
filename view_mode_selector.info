@@ -1,3 +1,5 @@
 name = View Mode Selector
 description = Provides a new field type for changing the view mode of an entity.
 core = 7.x
+
+files[] = view_mode_selector.migrate.inc
