@@ -142,7 +142,19 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
 
     // Override label with icon if available.
     foreach ($element['value']['#options'] as $view_mode => $view_mode_label) {
-      if (!empty($instance['settings']['view_modes'][$view_mode]['icon'])) {
+      // @TODO: Add setting for that later.
+      $show_preview = TRUE;
+
+      if ($show_preview) {
+        $entity = NULL; // Use current entity object here.
+        $entity_view = entity_view($instance['entity_type'], $entity, $view_mode);
+
+        // Now we should remove the fields inside the entity view in order
+        // to have placeholder <div>.
+
+        $element['value']['#options'][$view_mode] = $entity_view;
+      }
+      elseif (!empty($instance['settings']['view_modes'][$view_mode]['icon'])) {
         $icon = file_load($instance['settings']['view_modes'][$view_mode]['icon']);
 
         if (!$icon) {
