@@ -148,7 +148,7 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
   if ($instance['widget']['type'] == 'view_mode_selector_radios') {
     $element['value']['#type'] = 'radios';
 
-    // Override label with icon if available.
+    // Override label with preview or icon if available.
     foreach ($element['value']['#options'] as $view_mode => $view_mode_label) {
       if (!empty($instance['settings']['view_modes'][$view_mode]['icon'])) {
         $icon = file_load($instance['settings']['view_modes'][$view_mode]['icon']);
@@ -164,15 +164,21 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
           ),
         ));
       }
-      else {
+      // When Display Suite is installed we can show a nice preview.
+      elseif (module_exists('ds')) {
+        // Check whether a layout was configured for the given view mode.
+        $layout = ds_get_layout($entity_type, $entity_bundle, $view_mode);
+
+        if (!$layout) {
+          continue;
+        }
+
         // Create a new empty entity for the preview.
         $entity_properties = array('type' => $entity_bundle, 'id' => FALSE);
         $entity = entity_create($entity_type, $entity_properties);
         $entity_view = entity_view($entity_type, array($entity), $view_mode);
 
         // Render one field containing a placeholder <div> in every region.
-        $layout = ds_get_layout($entity_type, $entity_bundle, $view_mode);
-
         foreach ($layout['settings']['regions'] as $region => $region_settings) {
           foreach ($region_settings as $field) {
             $entity_view[$entity_type][0][$field] = array(
