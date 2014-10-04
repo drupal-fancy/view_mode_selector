@@ -1,3 +1,38 @@
 .view-mode-selector-view-modes .form-type-managed-file {
   margin-left: 30px;
 }
+
+/* HTML preview styling */
+.field-type-view-mode-selector .form-radios {
+  text-align: justify;
+  font-size: 0;
+  line-height: 0;
+}
+
+.field-type-view-mode-selector .form-radios .form-item {
+  display: inline-block;
+  min-width: 100px;
+  font-size: 1rem;
+  line-height: 1.4em;
+  vertical-align: top;
+  text-align: center;
+  padding-left: 1em;
+}
+
+.field-type-view-mode-selector .form-radios .form-item:first-child {
+  padding-left: 0;
+}
+
+.field-type-view-mode-selector input {
+  padding-bottom: 0.5em;
+}
+
+.field-type-view-mode-selector label {
+  display: block;
+}
+
+.field-type-view-mode-selector label .entity .placeholder {
+  background: black;
+  min-height: 20px;
+  border: 2px solid white;
+}

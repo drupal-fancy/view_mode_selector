@@ -111,14 +111,18 @@ function view_mode_selector_field_widget_info() {
  * Implements hook_field_widget_form().
  */
 function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $entity_type = $instance['entity_type'];
+  $entity_bundle = $instance['bundle'];
+
   $element['value'] = $element + array(
     '#type' => 'select',
     '#options' => array(),
     '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
+    '#attached' => array('css' => array(drupal_get_path('module', 'view_mode_selector') . '/css/view-mode-selector.css')),
   );
 
   // Get all view modes of the entity type.
-  $view_modes = view_mode_selector_view_modes($instance['entity_type']);
+  $view_modes = view_mode_selector_view_modes($entity_type);
 
   // Gather enabled view modes.
   foreach ($view_modes as $view_mode => $view_mode_settings) {
@@ -146,13 +150,34 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
       $show_preview = TRUE;
 
       if ($show_preview) {
-        $entity = NULL; // Use current entity object here.
-        $entity_view = entity_view($instance['entity_type'], $entity, $view_mode);
+        // Create a new empty entity for the preview.
+        $entity_properties = array('type' => $entity_bundle, 'id' => FALSE);
+        $entity = entity_create($entity_type, $entity_properties);
+        $entity_view = entity_view($entity_type, array($entity), $view_mode);
 
-        // Now we should remove the fields inside the entity view in order
-        // to have placeholder <div>.
+        // Render one field containing a placeholder div in every region.
+        $layout = ds_get_layout($entity_type, $entity_bundle, $view_mode);
+        foreach($layout['settings']['regions'] as $region => $region_settings) {
+          foreach($region_settings as $field) {
+            $entity_view[$entity_type][0][$field] = array(
+              '#type' => 'html_tag',
+              '#tag' => 'div',
+              '#value' => '',
+              '#attributes' => array('class' => 'placeholder'),
+              '#field_name' => $field,
+            );
+            continue;
+          }
+        }
 
-        $element['value']['#options'][$view_mode] = $entity_view;
+        // Disable contextual links.
+        $entity_view[$entity_type][0]['#contextual_links'] = FALSE;
+
+        // Render the preview.
+        $output = array();
+        $output[] = '<small>' . $view_modes[$view_mode]['label'] . '</small>';
+        $output[] = drupal_render($entity_view);
+        $element['value']['#options'][$view_mode] = implode($output, '');
       }
       elseif (!empty($instance['settings']['view_modes'][$view_mode]['icon'])) {
         $icon = file_load($instance['settings']['view_modes'][$view_mode]['icon']);
