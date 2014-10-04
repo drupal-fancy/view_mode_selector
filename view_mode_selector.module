@@ -87,6 +87,11 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
     }
   }
 
+  // Inform the user about the layout preview feature.
+  if ($instance['widget']['type'] == 'view_mode_selector_radios' && module_exists('ds')) {
+    $form['view_modes']['#description'] = t('It is possible to upload an icon in this widget but when you do not upload an icon a real preview of the view mode is displayed instead.');
+  }
+
   return $form;
 }
 
