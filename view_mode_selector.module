@@ -162,6 +162,33 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
     }
   }
 
+  // Cut out all view modes with Display Suite layouts with regions.
+  $ds_view_modes = array();
+  foreach ($element['value']['#options'] as $view_mode => $view_mode_label) {
+    $layout = ds_get_layout($entity_type, $entity_bundle, $view_mode);
+
+    if (!$layout || !isset($layout['settings']['regions'])) {
+      continue;
+    }
+
+    $ds_view_modes[$view_mode] = array(
+      'label' => $element['value']['#options'][$view_mode],
+      'layout' => $layout
+    );
+    unset($element['value']['#options'][$view_mode]);
+  }
+
+  // Sort Display Suite view modes by number of regions.
+  function sortByRegionCount($a, $b) {
+    return count($a['layout']['settings']['regions']) - count($b['layout']['settings']['regions']);
+  }
+  uasort($ds_view_modes, 'sortByRegionCount');
+
+  // Append the sorted view modes to the field options.
+  foreach ($ds_view_modes as $view_mode => $ds_view_mode) {
+    $element['value']['#options'][$view_mode] = $ds_view_mode['label'];
+  }
+
   // Icon support for radio widget.
   if ($instance['widget']['type'] == 'view_mode_selector_radios') {
     $element['value']['#type'] = 'radios';
@@ -192,11 +219,11 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
       // When Display Suite is installed we can show a nice preview.
       elseif (module_exists('ds')) {
         // Check whether a layout was configured for the given view mode.
-        $layout = ds_get_layout($entity_type, $entity_bundle, $view_mode);
-
-        if (!$layout) {
+        if (!isset($ds_view_modes[$view_mode])) {
           continue;
         }
+
+        $layout = $ds_view_modes[$view_mode]['layout'];
 
         // Create a new empty entity for the preview.
         $entity_properties = array('type' => $entity_bundle, 'id' => FALSE);
@@ -312,6 +339,7 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, $context) {
     }
   }
 }
+
 /**
  * Implements hook_entity_info_alter().
  */
