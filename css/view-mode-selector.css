@@ -27,7 +27,7 @@
   padding-left: 0;
 }
 
-.field-type-view-mode-selector input[type="radio"] {
+.field-type-view-mode-selector input[type="radio"]:not(.no-preview) {
   display: none;
 }
 

@@ -199,11 +199,6 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
     foreach ($element['value']['#options'] as $view_mode => $view_mode_label) {
       $output = array();
 
-      // Render the title.
-      if (isset($instance['settings']['view_modes'][$view_mode]['hide_title']) && !$instance['settings']['view_modes'][$view_mode]['hide_title']) {
-        $output[] = '<small>' . $view_modes[$view_mode]['label'] . '</small>';
-      };
-
       if (!empty($instance['settings']['view_modes'][$view_mode]['icon'])) {
         $icon = file_load($instance['settings']['view_modes'][$view_mode]['icon']);
 
@@ -219,12 +214,7 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
         ));
       }
       // When Display Suite is installed we can show a nice preview.
-      elseif (module_exists('ds')) {
-        // Check whether a layout was configured for the given view mode.
-        if (!isset($ds_view_modes[$view_mode])) {
-          continue;
-        }
-
+      elseif (module_exists('ds') && isset($ds_view_modes[$view_mode])) {
         $layout = $ds_view_modes[$view_mode]['layout'];
 
         // Create a new empty entity for the preview.
@@ -252,7 +242,15 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
 
         // Render the preview.
         $output[] = drupal_render($entity_view);
+      }  else {
+        $element['value'][$view_mode]['#attributes']['class'][] = 'no-preview';
       }
+
+      // Render the title.
+      if (isset($instance['settings']['view_modes'][$view_mode]['hide_title']) && !$instance['settings']['view_modes'][$view_mode]['hide_title']) {
+        $output[] = '<small>' . $view_modes[$view_mode]['label'] . '</small>';
+      };
+
       // Use the generated markup as our label value.
       $element['value']['#options'][$view_mode] = implode($output, '');
     }
