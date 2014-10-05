@@ -66,3 +66,11 @@
 .field-type-view-mode-selector .form-radios input[type="radio"]:checked + label .entity {
   background: rgba(150, 188, 68, 0.9);
 }
+
+/* Fixes for Shiny admin theme */
+.field-type-view-mode-selector .form-radios label:before {
+  display: none;
+}
+.field-type-view-mode-selector input[type="radio"] {
+  opacity: 1;
+}
