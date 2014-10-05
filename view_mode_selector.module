@@ -70,7 +70,7 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
       '#default_value' => isset($settings['view_modes'][$view_mode_name]['enable']) ? $settings['view_modes'][$view_mode_name]['enable'] : FALSE,
     );
 
-    // Allow uploading an icon for view modes when radios style is set.
+    // Allow uploading an icon for view modes when radio widget is used. 
     if ($instance['widget']['type'] == 'view_mode_selector_radios') {
       $form['view_modes'][$view_mode_name]['icon'] = array(
         '#type' => 'managed_file',
