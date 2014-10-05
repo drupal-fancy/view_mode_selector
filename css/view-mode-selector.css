@@ -2,7 +2,11 @@
   margin-left: 3em;
 }
 
-/* HTML preview styling */
+/* HTML preview styling
+  ==============================================================================
+  We display the view mode radio buttons as justified grid.
+  The guys at justifygrid.com describe very well how this works
+*/
 .field-type-view-mode-selector .form-radios {
   text-align: justify;
   font-size: 0;
@@ -23,23 +27,42 @@
   padding-left: 0;
 }
 
-.field-type-view-mode-selector input {
-  padding-bottom: 0.5em;
+.field-type-view-mode-selector input[type="radio"] {
+  display: none;
 }
 
-.field-type-view-mode-selector label {
-  display: block;
-}
-
-.field-type-view-mode-selector img {
+/* Icon & Preview layout */
+.field-type-view-mode-selector .form-radios img {
   display: block;
   max-width: 100px;
   height: auto;
   margin: 0 !important;
 }
 
-.field-type-view-mode-selector label .entity .placeholder {
-  background: black;
+.field-type-view-mode-selector .form-radios label {
+  display: block;
+}
+
+/* Preview coloring */
+.field-type-view-mode-selector .form-radios .placeholder {
+  background: #000;
   min-height: 20px;
   border: 2px solid white;
+}
+
+.field-type-view-mode-selector .form-radios label img,
+.field-type-view-mode-selector .form-radios label .entity {
+  padding: 0.4em;
+  background: rgba(0, 0, 0, 0.075);
+  transition: .4s background ease;
+}
+
+.field-type-view-mode-selector .form-radios .form-item:hover label img,
+.field-type-view-mode-selector .form-radios .form-item:hover label .entity {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.field-type-view-mode-selector .form-radios input[type="radio"]:checked + label img,
+.field-type-view-mode-selector .form-radios input[type="radio"]:checked + label .entity {
+  background: rgba(150, 188, 68, 0.9);
 }
