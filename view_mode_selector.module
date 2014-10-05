@@ -70,8 +70,21 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
       '#default_value' => isset($settings['view_modes'][$view_mode_name]['enable']) ? $settings['view_modes'][$view_mode_name]['enable'] : FALSE,
     );
 
-    // Allow uploading an icon for view modes when radio widget is used. 
+    // Allow uploading an icon and hide the title for view modes when radio widget is used.
     if ($instance['widget']['type'] == 'view_mode_selector_radios') {
+      $form['view_modes'][$view_mode_name]['prefix'] = array(
+        '#markup' => '<div class="settings">',
+      );
+      $form['view_modes'][$view_mode_name]['hide_title'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Hide title'),
+        '#default_value' => isset($settings['view_modes'][$view_mode_name]['hide_title']) ? $settings['view_modes'][$view_mode_name]['hide_title'] : FALSE,
+        '#states' => array(
+          'visible' => array(
+            'input[name="instance[settings][view_modes][' . $view_mode_name . '][enable]"]' => array('checked' => TRUE),
+          ),
+        )
+      );
       $form['view_modes'][$view_mode_name]['icon'] = array(
         '#type' => 'managed_file',
         '#title' => t('Icon'),
@@ -83,6 +96,9 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
             'input[name="instance[settings][view_modes][' . $view_mode_name . '][enable]"]' => array('checked' => TRUE),
           ),
         ),
+      );
+      $form['view_modes'][$view_mode_name]['suffix'] = array(
+        '#markup' => '</div>',
       );
     }
   }
@@ -155,6 +171,13 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
 
     // Override label with preview or icon if available.
     foreach ($element['value']['#options'] as $view_mode => $view_mode_label) {
+      $output = array();
+
+      // Render the title.
+      if (isset($instance['settings']['view_modes'][$view_mode]['hide_title']) && !$instance['settings']['view_modes'][$view_mode]['hide_title']) {
+        $output[] = '<small>' . $view_modes[$view_mode]['label'] . '</small>';
+      };
+
       if (!empty($instance['settings']['view_modes'][$view_mode]['icon'])) {
         $icon = file_load($instance['settings']['view_modes'][$view_mode]['icon']);
 
@@ -162,7 +185,7 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
           continue;
         }
 
-        $element['value']['#options'][$view_mode] = theme('image', array(
+        $output[] = theme('image', array(
           'path' => file_create_url($icon->uri),
           'attributes' => array(
             'title' => $view_modes[$view_mode]['label'],
@@ -202,12 +225,10 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
         $entity_view[$entity_type][0]['#contextual_links'] = FALSE;
 
         // Render the preview.
-        $output = array();
-        $output[] = '<small>' . $view_modes[$view_mode]['label'] . '</small>';
         $output[] = drupal_render($entity_view);
-
-        $element['value']['#options'][$view_mode] = implode($output, '');
       }
+      // Use the generated markup as our label value.
+      $element['value']['#options'][$view_mode] = implode($output, '');
     }
   }
 
