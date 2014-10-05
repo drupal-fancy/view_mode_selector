@@ -72,9 +72,8 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
 
     // Allow uploading an icon and hide the title for view modes when radio widget is used.
     if ($instance['widget']['type'] == 'view_mode_selector_radios') {
-      $form['view_modes'][$view_mode_name]['prefix'] = array(
-        '#markup' => '<div class="settings">',
-      );
+      $form['view_modes'][$view_mode_name]['prefix']['#markup'] = '<div class="settings">';
+
       $form['view_modes'][$view_mode_name]['hide_title'] = array(
         '#type' => 'checkbox',
         '#title' => t('Hide title'),
@@ -97,9 +96,7 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
           ),
         ),
       );
-      $form['view_modes'][$view_mode_name]['suffix'] = array(
-        '#markup' => '</div>',
-      );
+      $form['view_modes'][$view_mode_name]['suffix']['#markup'] = '</div>';
     }
   }
 
