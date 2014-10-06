@@ -70,7 +70,7 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
 
     $form['view_modes'][$view_mode_name]['enable'] = array(
       '#type' => 'checkbox',
-      '#title' => $view_mode['label'],
+      '#title' => $view_mode['label'] . ' (' . $view_mode_name . ')',
       '#default_value' => isset($settings['view_modes'][$view_mode_name]['enable']) ? $settings['view_modes'][$view_mode_name]['enable'] : FALSE,
     );
 
