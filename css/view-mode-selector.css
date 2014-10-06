@@ -71,6 +71,7 @@
 .field-type-view-mode-selector .form-radios label:before {
   display: none;
 }
+
 .field-type-view-mode-selector input[type="radio"] {
   opacity: 1;
 }
