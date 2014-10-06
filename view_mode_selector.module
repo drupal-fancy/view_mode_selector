@@ -60,7 +60,11 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
         '#type' => 'fieldset',
         '#title' => t('Available view modes'),
         '#attributes' => array('class' => array('view-mode-selector-view-modes')),
-        '#attached' => array('css' => array(drupal_get_path('module', 'view_mode_selector') . '/css/view-mode-selector.css')),
+        '#attached' => array(
+          'css' => array(
+            drupal_get_path('module', 'view_mode_selector') . '/css/view-mode-selector.css',
+          ),
+        ),
       );
     }
 
@@ -84,6 +88,7 @@ function view_mode_selector_field_instance_settings_form($field, $instance) {
           ),
         )
       );
+
       $form['view_modes'][$view_mode_name]['icon'] = array(
         '#type' => 'managed_file',
         '#title' => t('Icon'),
@@ -165,6 +170,7 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
   // Cut out all view modes with Display Suite layouts with regions.
   if (module_exists('ds')) {
     $ds_view_modes = array();
+
     foreach ($element['value']['#options'] as $view_mode => $view_mode_label) {
       $layout = ds_get_layout($entity_type, $entity_bundle, $view_mode);
 
@@ -223,7 +229,7 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
         $entity_view = entity_view($entity_type, array($entity), $view_mode);
 
         // Render one field containing a placeholder <div> in every region.
-        foreach ($layout['settings']['regions'] as $region => $region_settings) {
+        foreach ($layout['settings']['regions'] as $region_settings) {
           foreach ($region_settings as $field) {
             $entity_view[$entity_type][0][$field] = array(
               '#type' => 'html_tag',
@@ -242,7 +248,8 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
 
         // Render the preview.
         $output[] = drupal_render($entity_view);
-      }  else {
+      }
+      else {
         $element['value'][$view_mode]['#attributes']['class'][] = 'no-preview';
       }
 
