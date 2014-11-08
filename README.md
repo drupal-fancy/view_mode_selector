@@ -1,23 +1,14 @@
-CONTENTS OF THIS FILE
----------------------
-
- * Introduction
- * Installation
- * Troubleshooting
-
-
-INTRODUCTION
-------------
+# Introduction
 
 Current Maintainers:
 
-* [yannickoo](http://drupal.org/user/531118)
+* [yannickoo](https://www.drupal.org/u/yannickoo)
+* [axe312](https://www.drupal.org/u/axe312)
 
 View Mode Selector creates a new field type called *View mode selector* which
 will override the view mode of an entity.
 
-INSTALLATION
-------------
+# Installation
 
 1. Install the module the [drupal way](http://drupal.org/documentation/install/modules-themes/modules-7).
 
@@ -31,8 +22,7 @@ will be used instead of the view mode label in the widget form.
 
 5. Create or edit an entity with the field attached and select a view mode.
 
-TROUBLESHOOTING
----------------
+# Troubleshooting
 
 When the view mode of an entity did not change as expected a solution could be
 to check which module are implementing the [`hook_entity_view_mode_alter`](https://api.drupal.org/api/drupal/modules!system!system.api.php/function/hook_entity_view_mode_alter/7), maybe another one overrides the view mode after View mode selector did it.
