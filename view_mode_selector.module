@@ -195,10 +195,7 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
     }
 
     // Sort Display Suite view modes by number of regions.
-    function sortByRegionCount($a, $b) {
-      return count($a['layout']['settings']['regions']) - count($b['layout']['settings']['regions']);
-    }
-    uasort($ds_view_modes, 'sortByRegionCount');
+    uasort($ds_view_modes, '_view_mode_selector_sort_by_region_count');
 
     // Append the sorted view modes to the field options.
     foreach ($ds_view_modes as $view_mode => $ds_view_mode) {
@@ -416,4 +413,11 @@ function view_mode_selector_view_modes($entity_type) {
   unset($view_modes['view_mode_selector']);
 
   return $view_modes;
+}
+
+/**
+ * Sort function to order Display Suite view modes by number of regions.
+ */
+function _view_mode_selector_sort_by_region_count($a, $b) {
+  return count($a['layout']['settings']['regions']) - count($b['layout']['settings']['regions']);
 }
