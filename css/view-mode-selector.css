@@ -48,6 +48,12 @@
   background: #000;
   min-height: 20px;
   border: 2px solid white;
+  color: #fff;
+  font-size: 0.8em;
+}
+
+.field-type-view-mode-selector .form-radios .placeholder ~ .placeholder {
+  margin-top: 1px;
 }
 
 .field-type-view-mode-selector .form-radios label img,

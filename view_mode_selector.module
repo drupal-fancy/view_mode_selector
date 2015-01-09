@@ -14,6 +14,7 @@ function view_mode_selector_field_info() {
       'label' => t('View mode selector'),
       'description' => t('Stores the view mode of the entity.'),
       'instance_settings' => array(
+        'number_placeholders' => FALSE,
         'view_modes' => array(),
       ),
       'default_widget' => 'view_mode_selector_select',
@@ -50,6 +51,14 @@ function view_mode_selector_field_is_empty($item, $field) {
 function view_mode_selector_field_instance_settings_form($field, $instance) {
   $form = array();
   $settings = $instance['settings'];
+
+  $form['number_placeholders'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Number HTML preview placeholders'),
+      '#description' => t('Adds the count/delta to the preview placeholders.'),
+      '#access' => $instance['widget']['type'] == 'view_mode_selector_radios',
+      '#default_value' => isset($settings['number_placeholders']) ? $settings['number_placeholders'] : FALSE,
+  );
 
   // Get all view modes of the entity type.
   $view_modes = view_mode_selector_view_modes($instance['entity_type']);
@@ -229,12 +238,14 @@ function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $ins
         $entity_view = entity_view($entity_type, array($entity), $view_mode);
 
         // Render one field containing a placeholder <div> in every region.
+        $count = 0;
         foreach ($layout['settings']['regions'] as $region_settings) {
           foreach ($region_settings as $field) {
+            $count++;
             $entity_view[$entity_type][0][$field] = array(
               '#type' => 'html_tag',
               '#tag' => 'div',
-              '#value' => '',
+              '#value' => $instance['settings']['number_placeholders'] ? $count : '',
               '#attributes' => array('class' => 'placeholder'),
               '#field_name' => $field,
             );
