@@ -359,7 +359,7 @@ function view_mode_selector_entity_info_alter(&$entity_info) {
       foreach (array_keys($field_info['bundles']) as $bundle) {
         $entity_info[$bundle]['view modes']['view_mode_selector'] = array(
           'label' => t('View mode selector'),
-          'custom settings' => TRUE,
+          'custom settings' => FALSE,
         );
       }
     }
