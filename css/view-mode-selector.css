@@ -7,13 +7,13 @@
   We display the view mode radio buttons as justified grid.
   The guys at justifygrid.com describe very well how this works
 */
-.field-type-view-mode-selector .form-radios {
+.field-widget-view-mode-selector-icons .form-radios {
   text-align: justify;
   font-size: 0;
   line-height: 0;
 }
 
-.field-type-view-mode-selector .form-radios .form-item {
+.field-widget-view-mode-selector-icons .form-radios .form-item {
   display: inline-block;
   padding-left: 1em;
   min-width: 100px;
@@ -23,55 +23,46 @@
   text-align: center;
 }
 
-.field-type-view-mode-selector .form-radios .form-item:first-child {
+.field-widget-view-mode-selector-icons .form-radios .form-item:first-child {
   padding-left: 0;
 }
 
-.field-type-view-mode-selector input[type="radio"]:not(.no-preview) {
+.field-widget-view-mode-selector-icons .form-radios input[type="radio"]:not(.no-preview) {
   display: none;
 }
 
 /* Icon & Preview layout */
-.field-type-view-mode-selector .form-radios img {
+.field-widget-view-mode-selector-icons .form-radios img {
   display: block;
   max-width: 100px;
   height: auto;
   margin: 0 !important;
 }
 
-.field-type-view-mode-selector .form-radios label {
+.field-widget-view-mode-selector-icons .form-radios label {
   display: block;
 }
 
 /* Preview coloring */
-.field-type-view-mode-selector .form-radios .placeholder {
+.field-widget-view-mode-selector-icons .form-radios .placeholder {
   background: #000;
   min-height: 20px;
   border: 2px solid white;
 }
 
-.field-type-view-mode-selector .form-radios label img,
-.field-type-view-mode-selector .form-radios label .entity {
+.field-widget-view-mode-selector-icons .form-radios label img,
+.field-widget-view-mode-selector-icons .form-radios label .entity {
   padding: 0.4em;
   background: rgba(0, 0, 0, 0.075);
   transition: .4s background ease;
 }
 
-.field-type-view-mode-selector .form-radios .form-item:hover label img,
-.field-type-view-mode-selector .form-radios .form-item:hover label .entity {
+.field-widget-view-mode-selector-icons .form-radios .form-item:hover label img,
+.field-widget-view-mode-selector-icons .form-radios .form-item:hover label .entity {
   background: rgba(0, 0, 0, 0.2);
 }
 
-.field-type-view-mode-selector .form-radios input[type="radio"]:checked + label img,
-.field-type-view-mode-selector .form-radios input[type="radio"]:checked + label .entity {
+.field-widget-view-mode-selector-icons .form-radios input[type="radio"]:checked + label img,
+.field-widget-view-mode-selector-icons .form-radios input[type="radio"]:checked + label .entity {
   background: rgba(150, 188, 68, 0.9);
-}
-
-/* Fixes for Shiny admin theme */
-.field-type-view-mode-selector .form-radios label:before {
-  display: none;
-}
-
-.field-type-view-mode-selector input[type="radio"] {
-  opacity: 1;
 }

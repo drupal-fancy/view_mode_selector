@@ -1,408 +1,118 @@
 <?php
 
+use \Drupal\Core\Url;
+
 /**
  * @file
  * Main file of View Mode Selector module.
  */
 
 /**
- * Implements hook_field_info().
+ * Implements hook_entity_view_mode_alter().
  */
-function view_mode_selector_field_info() {
-  return array(
-    'view_mode_selector' => array(
-      'label' => t('View mode selector'),
-      'description' => t('Stores the view mode of the entity.'),
-      'instance_settings' => array(
-        'view_modes' => array(),
-      ),
-      'default_widget' => 'view_mode_selector_select',
-      'default_formatter' => 'view_mode_selector',
-    ),
-  );
-}
-
-
-/**
- * Implements hook_migrate_api().
- */
-function view_mode_selector_migrate_api() {
-  $api = array(
-    'api' => 2,
-    'field handlers' => array(
-      'MigrateViewModeSelectorValueFieldHandler',
-    ),
-  );
-
-  return $api;
-}
-
-/**
- * Implements hook_field_is_empty().
- */
-function view_mode_selector_field_is_empty($item, $field) {
-  return !(bool) $item['value'];
-}
-
-/**
- * Implements hook_field_instance_settings_form().
- */
-function view_mode_selector_field_instance_settings_form($field, $instance) {
-  $form = array();
-  $settings = $instance['settings'];
-
-  // Get all view modes of the entity type.
-  $view_modes = view_mode_selector_view_modes($instance['entity_type']);
-
-  foreach ($view_modes as $view_mode_name => $view_mode) {
-    if (!isset($form['view_modes'])) {
-      $form['view_modes'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Available view modes'),
-        '#attributes' => array('class' => array('view-mode-selector-view-modes')),
-        '#attached' => array(
-          'css' => array(
-            drupal_get_path('module', 'view_mode_selector') . '/css/view-mode-selector.css',
-          ),
-        ),
-      );
-    }
-
-    $form['view_modes'][$view_mode_name]['enable'] = array(
-      '#type' => 'checkbox',
-      '#title' => $view_mode['label'] . ' (' . $view_mode_name . ')',
-      '#default_value' => isset($settings['view_modes'][$view_mode_name]['enable']) ? $settings['view_modes'][$view_mode_name]['enable'] : FALSE,
-    );
-
-    // Allow uploading an icon and hide the title for view modes when radio widget is used.
-    if ($instance['widget']['type'] == 'view_mode_selector_radios') {
-      $form['view_modes'][$view_mode_name]['prefix']['#markup'] = '<div class="settings">';
-
-      $form['view_modes'][$view_mode_name]['hide_title'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Hide title'),
-        '#default_value' => isset($settings['view_modes'][$view_mode_name]['hide_title']) ? $settings['view_modes'][$view_mode_name]['hide_title'] : FALSE,
-        '#states' => array(
-          'visible' => array(
-            'input[name="instance[settings][view_modes][' . $view_mode_name . '][enable]"]' => array('checked' => TRUE),
-          ),
-        )
-      );
-
-      $form['view_modes'][$view_mode_name]['icon'] = array(
-        '#type' => 'managed_file',
-        '#title' => t('Icon'),
-        '#description' => t('An icon which can be used for a view mode preview.'),
-        '#upload_location' => 'public://view-mode-selector/' . $instance['entity_type'],
-        '#default_value' => isset($settings['view_modes'][$view_mode_name]['icon']) ? $settings['view_modes'][$view_mode_name]['icon'] : 0,
-        '#states' => array(
-          'visible' => array(
-            'input[name="instance[settings][view_modes][' . $view_mode_name . '][enable]"]' => array('checked' => TRUE),
-          ),
-        ),
-      );
-      $form['view_modes'][$view_mode_name]['suffix']['#markup'] = '</div>';
-    }
+function view_mode_selector_entity_view_mode_alter(&$view_mode, Drupal\Core\Entity\EntityInterface $entity, $context) {
+  if ($view_mode !== 'view_mode_selector') {
+    return;
   }
 
-  // Inform the user about the layout preview feature.
-  if ($instance['widget']['type'] == 'view_mode_selector_radios' && module_exists('ds')) {
-    $form['view_modes']['#description'] = t('It is possible to upload an icon in this widget but when you do not upload an icon a real preview of the view mode is displayed instead.');
-  }
+  // Set view mode to 'Default', this is for entities without
+  // a view mode selector field.
+  $view_mode = 'default';
 
-  return $form;
-}
+  // Find a view mode selector field and change the view mode.
+  $fields = \Drupal::entityManager()->getFieldDefinitions($entity->getEntityTypeId(), $entity->bundle());
+  foreach ($fields as $field_name => $field) {
 
-/**
- * Implements hook_field_widget_info().
- */
-function view_mode_selector_field_widget_info() {
-  return array(
-    'view_mode_selector_select' => array(
-      'label' => t('Select list'),
-      'field types' => array('view_mode_selector'),
-    ),
-    'view_mode_selector_radios' => array(
-      'label' => t('Radio buttons'),
-      'field types' => array('view_mode_selector'),
-      'weight' => 1,
-    ),
-  );
-}
+    if ($field->getType() == 'view_mode_selector') {
+      $items = $entity->getTranslation($context['langcode'])->get($field_name)->getValue();
 
-/**
- * Implements hook_field_widget_form().
- */
-function view_mode_selector_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  $entity_type = $instance['entity_type'];
-  $entity_bundle = $instance['bundle'];
+      if (isset($items[0]['value'])) {
+        $view_mode = $items[0]['value'];
 
-  $element['value'] = $element + array(
-    '#type' => 'select',
-    '#options' => array(),
-    '#default_value' => isset($items[$delta]['value']) ? $items[$delta]['value'] : NULL,
-    '#attached' => array(
-      'css' => array(
-        drupal_get_path('module', 'view_mode_selector') . '/css/view-mode-selector.css',
-      ),
-    ),
-  );
-
-  // Get all view modes of the entity type.
-  $view_modes = view_mode_selector_view_modes($entity_type);
-
-  // Gather enabled view modes.
-  foreach ($view_modes as $view_mode => $view_mode_settings) {
-    if (isset($instance['settings']['view_modes'][$view_mode]) && $instance['settings']['view_modes'][$view_mode]['enable']) {
-      $label = $view_modes[$view_mode]['label'];
-      $element['value']['#options'][$view_mode] = $label;
-    }
-  }
-
-  // Show all view modes in widget when no view modes are enabled.
-  if (!count($element['value']['#options'])) {
-    foreach ($view_modes as $view_mode => $view_mode_settings) {
-      $label = $view_modes[$view_mode]['label'];
-      $element['value']['#options'][$view_mode] = $label;
-    }
-  }
-
-  // Cut out all view modes with Display Suite layouts with regions.
-  if (module_exists('ds')) {
-    $ds_view_modes = array();
-
-    foreach ($element['value']['#options'] as $view_mode => $view_mode_label) {
-      $layout = ds_get_layout($entity_type, $entity_bundle, $view_mode);
-
-      if (!$layout || !isset($layout['settings']['regions'])) {
-        continue;
+        // It would not make sense to have multiple view mode selector
+        // fields so stop after the first was found.
+        return;
       }
-
-      $ds_view_modes[$view_mode] = array(
-        'label' => $element['value']['#options'][$view_mode],
-        'layout' => $layout
-      );
-      unset($element['value']['#options'][$view_mode]);
-    }
-
-    // Sort Display Suite view modes by number of regions.
-    function sortByRegionCount($a, $b) {
-      return count($a['layout']['settings']['regions']) - count($b['layout']['settings']['regions']);
-    }
-    uasort($ds_view_modes, 'sortByRegionCount');
-
-    // Append the sorted view modes to the field options.
-    foreach ($ds_view_modes as $view_mode => $ds_view_mode) {
-      $element['value']['#options'][$view_mode] = $ds_view_mode['label'];
     }
   }
-
-  // Icon support for radio widget.
-  if ($instance['widget']['type'] == 'view_mode_selector_radios') {
-    $element['value']['#type'] = 'radios';
-
-    // Override label with preview or icon if available.
-    foreach ($element['value']['#options'] as $view_mode => $view_mode_label) {
-      $output = array();
-
-      if (!empty($instance['settings']['view_modes'][$view_mode]['icon'])) {
-        $icon = file_load($instance['settings']['view_modes'][$view_mode]['icon']);
-
-        if (!$icon) {
-          continue;
-        }
-
-        $output[] = theme('image', array(
-          'path' => file_create_url($icon->uri),
-          'attributes' => array(
-            'title' => $view_modes[$view_mode]['label'],
-          ),
-        ));
-      }
-      // When Display Suite is installed we can show a nice preview.
-      elseif (module_exists('ds') && isset($ds_view_modes[$view_mode])) {
-        $layout = $ds_view_modes[$view_mode]['layout'];
-
-        // Create a new empty entity for the preview.
-        $entity_properties = array('type' => $entity_bundle, 'id' => FALSE);
-        $entity = entity_create($entity_type, $entity_properties);
-        $entity_view = entity_view($entity_type, array($entity), $view_mode);
-
-        // Render one field containing a placeholder <div> in every region.
-        foreach ($layout['settings']['regions'] as $region_settings) {
-          foreach ($region_settings as $field) {
-            $entity_view[$entity_type][0][$field] = array(
-              '#type' => 'html_tag',
-              '#tag' => 'div',
-              '#value' => '',
-              '#attributes' => array('class' => 'placeholder'),
-              '#field_name' => $field,
-            );
-
-            continue;
-          }
-        }
-
-        // Disable contextual links.
-        $entity_view[$entity_type][0]['#contextual_links'] = FALSE;
-
-        // Render the preview.
-        $output[] = drupal_render($entity_view);
-      }
-      else {
-        $element['value'][$view_mode]['#attributes']['class'][] = 'no-preview';
-      }
-
-      // Render the title.
-      if (isset($instance['settings']['view_modes'][$view_mode]['hide_title']) && !$instance['settings']['view_modes'][$view_mode]['hide_title']) {
-        $output[] = '<small>' . $view_modes[$view_mode]['label'] . '</small>';
-      };
-
-      // Use the generated markup as our label value.
-      $element['value']['#options'][$view_mode] = implode($output, '');
-    }
-  }
-
-  return $element;
 }
 
-/**
- * Implements hook_field_formatter_info().
- */
-function view_mode_selector_field_formatter_info() {
-  return array(
-    'view_mode_selector' => array(
-      'label' => t('Default'),
-      'field types' => array('view_mode_selector'),
-    ),
-  );
-}
 
 /**
- * Implements hook_field_formatter_view().
+ * Implements hook_entity_view_mode_info_alter().
  */
-function view_mode_selector_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element = array();
+function view_mode_selector_entity_view_mode_info_alter(&$view_modes) {
+  // Load all view mode selector fields.
+  $storage = \Drupal::entityManager()->getStorage('field_config');
+  $field_ids = \Drupal::entityQuery('field_config')
+    ->condition('field_type', 'view_mode_selector')
+    ->execute();
 
-  switch ($display['type']) {
-    case 'view_mode_selector':
-      foreach ($items as $delta => $item) {
-        $element[$delta] = array(
-          '#markup' => $item['value'],
-        );
+  $fields = $storage->loadMultiple($field_ids);
 
-        return $element;
-      }
-      break;
+  // Create the extra fields which represent the field deltas.
+  /** @var \Drupal\field\Entity\FieldConfig $field */
+  foreach ($fields as $field) {
+    $entity_type = $field->getTargetEntityTypeId();
+
+    // Load the view mode selector view mode and add it to the list.
+    $storage = \Drupal::entityManager()->getStorage('entity_view_mode');
+    $id = $entity_type . '.view_mode_selector';
+    $view_mode = $storage->load($id);
+    if (!$view_mode) {
+      // Create the view mode if it does not exist.
+      $view_mode = $storage->create([
+        'label' => t('View mode selector'),
+        'id' => $id,
+        'status' => true, // must be true; see: drupal.org/node/2322503
+        'targetEntityType' => $entity_type
+      ], 'entity_view_mode');
+      $view_mode->save();
+    };
+
+    $view_modes[$entity_type]['view_mode_selector'] = $view_mode->toArray();
   }
-
-  return $element;
 }
 
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function view_mode_selector_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
-  if ($form['#field']['type'] == 'view_mode_selector') {
-    // Don't allow more than one value for a view mode selector field.
-    $form['field']['cardinality']['#access'] = FALSE;
-    $form['field']['cardinality']['#value'] = 1;
+function view_mode_selector_form_entity_view_display_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $form_object = $form_state->getFormObject();
+  /** @var $view_display \Drupal\Core\Entity\Entity\EntityViewDisplay **/
+  $view_display = $form_object->getEntity();
+
+  if ($view_display->getMode() == 'view_mode_selector') {
+    drupal_set_message(t('This is a placeholder view mode from the <a href="@view-mode-selector">View Mode Selector</a> module. It will be replaced with a selected view mode.', [
+      '@view-mode-selector' => Url::fromUri('https://www.drupal.org/project/view_mode_selector'),
+    ]), 'status');
+    drupal_set_message(t('The field settings have been disabled by the <a href="@view-mode-selector">View Mode Selector</a> module.', [
+      '@view-mode-selector' => Url::fromUri('https://www.drupal.org/project/view_mode_selector'),
+    ]), 'warning');
+    $form['fields']['#disabled'] = TRUE;
   }
 }
 
 /**
- * Implements hook_entity_view_mode_alter().
- */
-function view_mode_selector_entity_view_mode_alter(&$view_mode, $context) {
-  list(, , $bundle) = entity_extract_ids($context['entity_type'], $context['entity']);
-  $fields_info = field_info_instances($context['entity_type'], $bundle);
-
-  if ($view_mode !== 'view_mode_selector') {
-    return;
-  }
-
-  // Set view mode to 'Default', this is for entites without
-  // a view mode selector field.
-  $view_mode = 'default';
-
-  // Find a view mode selector field and change the view mode.
-  foreach ($fields_info as $field_name => $value) {
-    $field_info = field_info_field($field_name);
-
-    if ($field_info['type'] == 'view_mode_selector') {
-      $items = field_get_items($context['entity_type'], $context['entity'], $field_info['field_name']);
-
-      if ($items) {
-        $value = $items[0]['value'];
-
-        if ($value) {
-          $view_mode = $value;
-
-          // It would not make sense to have multiple view mode selector
-          // fields so stop after the first was found.
-          return;
-        }
-      }
-    }
-  }
-}
-
-/**
- * Implements hook_entity_info_alter().
- */
-function view_mode_selector_entity_info_alter(&$entity_info) {
-  $field_infos = field_info_field_map();
-
-  // Create a 'View mode selector' view mode in every bundle.
-  foreach ($field_infos as $field_info) {
-    if ($field_info['type'] == 'view_mode_selector') {
-      foreach (array_keys($field_info['bundles']) as $bundle) {
-        $entity_info[$bundle]['view modes']['view_mode_selector'] = array(
-          'label' => t('View mode selector'),
-          'custom settings' => FALSE,
-        );
-      }
-    }
-  }
-}
-
-/**
- * Implements hook_form_field_ui_display_overview_form_alter().
- */
-function view_mode_selector_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
-  if ($form['#view_mode'] == 'view_mode_selector') {
-    drupal_set_message(t('This is a placeholder view mode from the <a href="@view-mode-selector">View Mode Selector</a> module. It will be replaced with a selected view mode.', array(
-      '@view-mode-selector' => url('https://www.drupal.org/project/view_mode_selector'),
-    )), 'status');
-    drupal_set_message(t('Make sure that all fields are visible in order to get access to them.'), 'warning');
-
-    // @TODO Make all fields visible programmatically.
-  }
-}
-
-/**
- * Helper function which returns all view modes of an entity type.
+ * Helper function which returns all selectable view modes of an entity type
+ * as form select options array.
+ *
+ * @todo replace with getDisplayModeOptions()
+ *   https://www.drupal.org/node/2322503
  *
  * @param string $entity_type
  *   The specific entity type.
  *
  * @return array
- *   An array containing all view modes of the entity type.
+ *   An array containing all view modes.
  */
-function view_mode_selector_view_modes($entity_type) {
-  $entity_info = entity_get_info($entity_type);
+function view_mode_selector_get_view_mode_options($entity_type) {
+  $options = ['default' => t('Default')];
+  $view_modes = Drupal::entityManager()->getViewModes($entity_type);
 
-  // Add 'Default' view mode to all view modes in order
-  // to allow switching to it.
-  $view_modes = array(
-    'default' => array(
-      'label' => t('Default'),
-      'custom settings' => TRUE,
-    ),
-  ) + $entity_info['view modes'];
+  foreach ($view_modes as $machine_name => $view_mode) {
+    $options[$machine_name] = $view_mode['label'];
+  }
 
-  // The 'View mode selector' view mode is only for allow switching.
-  unset($view_modes['view_mode_selector']);
-
-  return $view_modes;
+  return $options;
 }
