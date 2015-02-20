@@ -30,6 +30,12 @@ class ViewModeSelectorIcons extends ViewModeSelectorRadios {
     $bundle = $field->getTargetBundle();
     $settings = $this->getFieldSettings();
 
+    $element['#attached'] = [
+      'library' => [
+        'view_mode_selector/widget_styles',
+      ],
+    ];
+
     foreach (array_keys($this->viewModes) as $view_mode) {
       $output = [];
 

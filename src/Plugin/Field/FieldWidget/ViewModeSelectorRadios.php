@@ -25,11 +25,6 @@ class ViewModeSelectorRadios extends ViewModeSelectorWidgetBase {
       '#type' => 'radios',
       '#options' => $this->viewModes,
       '#default_value' => $items[$delta]->value ?: reset(array_keys($this->viewModes)),
-      '#attached' => [
-        'library' => [
-          'view_mode_selector/widget_styles',
-        ],
-      ]
     ];
 
     return $element;
