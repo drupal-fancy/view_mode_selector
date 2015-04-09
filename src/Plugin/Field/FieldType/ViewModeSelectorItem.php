@@ -77,9 +77,7 @@ class ViewModeSelectorItem extends FieldItemBase {
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
     $element = [];
     $settings = $this->getSettings();
-    /** @var $field \Drupal\field\Entity\FieldStorageConfig **/
-    $field = $form['#field'];
-    $entity_type = $field->getTargetEntityTypeId();
+    $entity_type = $this->definition->getFieldDefinition()->getEntityTypeId();
 
     // Get all view modes of the entity type.
     $view_modes = view_mode_selector_get_view_mode_options($entity_type);
