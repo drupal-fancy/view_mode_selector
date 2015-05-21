@@ -322,12 +322,12 @@ function view_mode_selector_form_field_ui_field_edit_form_alter(&$form, &$form_s
  * Implements hook_entity_view_mode_alter().
  */
 function view_mode_selector_entity_view_mode_alter(&$view_mode, $context) {
-  list(, , $bundle) = entity_extract_ids($context['entity_type'], $context['entity']);
-  $fields_info = field_info_instances($context['entity_type'], $bundle);
-
   if ($view_mode !== 'view_mode_selector') {
     return;
   }
+  
+  list(, , $bundle) = entity_extract_ids($context['entity_type'], $context['entity']);
+  $fields_info = field_info_instances($context['entity_type'], $bundle);
 
   // Set view mode to 'Default', this is for entites without
   // a view mode selector field.
