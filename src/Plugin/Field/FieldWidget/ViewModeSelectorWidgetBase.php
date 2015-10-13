@@ -25,9 +25,10 @@ abstract class ViewModeSelectorWidgetBase extends WidgetBase {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
 
     $entity_type = $field_definition->getTargetEntityTypeId();
+    $bundle = $field_definition->getTargetBundle();
 
-    // Get all view modes of the entity type.
-    $view_modes = view_mode_selector_get_view_mode_options($entity_type);
+    // Get all view modes for the current bundle.
+    $view_modes = \Drupal::entityManager()->getViewModeOptionsByBundle($entity_type, $bundle);
 
     // Reduce options by enabled view modes
     foreach (array_keys($view_modes) as $view_mode) {
@@ -39,7 +40,7 @@ abstract class ViewModeSelectorWidgetBase extends WidgetBase {
 
     // Show all view modes in widget when no view modes are enabled.
     if (!count($view_modes)) {
-      $view_modes = view_mode_selector_get_view_mode_options($entity_type);
+      $view_modes = \Drupal::entityManager()->getViewModeOptionsByBundle($entity_type, $bundle);
     }
 
     $this->viewModes = $view_modes;

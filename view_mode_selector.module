@@ -92,27 +92,3 @@ function view_mode_selector_form_entity_view_display_edit_form_alter(&$form, \Dr
     $form['fields']['#disabled'] = TRUE;
   }
 }
-
-/**
- * Helper function which returns all selectable view modes of an entity type
- * as form select options array.
- *
- * @todo replace with getDisplayModeOptions()
- *   https://www.drupal.org/node/2322503
- *
- * @param string $entity_type
- *   The specific entity type.
- *
- * @return array
- *   An array containing all view modes.
- */
-function view_mode_selector_get_view_mode_options($entity_type) {
-  $options = ['default' => t('Default')];
-  $view_modes = Drupal::entityManager()->getViewModes($entity_type);
-
-  foreach ($view_modes as $machine_name => $view_mode) {
-    $options[$machine_name] = $view_mode['label'];
-  }
-
-  return $options;
-}

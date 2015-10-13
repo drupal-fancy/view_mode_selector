@@ -77,10 +77,11 @@ class ViewModeSelectorItem extends FieldItemBase {
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
     $element = [];
     $settings = $this->getSettings();
-    $entity_type = $this->definition->getFieldDefinition()->getEntityTypeId();
+    $entity_type = $this->definition->getFieldDefinition()->getTargetEntityTypeId();
+    $bundle = $this->definition->getFieldDefinition()->getTargetBundle();
 
-    // Get all view modes of the entity type.
-    $view_modes = view_mode_selector_get_view_mode_options($entity_type);
+    // Get all view modes for the current bundle.
+    $view_modes = \Drupal::entityManager()->getViewModeOptionsByBundle($entity_type, $bundle);
 
     foreach ($view_modes as $view_mode_id => $view_mode_label) {
       if (!isset($element['view_modes'])) {
