@@ -24,7 +24,10 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, Drupal\Core\Enti
   foreach ($fields as $field_name => $field) {
 
     if ($field->getType() == 'view_mode_selector') {
-      $items = $entity->getTranslation($context['langcode'])->get($field_name)->getValue();
+      if (!$langcode = $context['langcode']) {
+        $langcode = $entity->language()->getId();
+      }
+      $items = $entity->getTranslation($langcode)->get($field_name)->getValue();
 
       if (isset($items[0]['value'])) {
         $view_mode = $items[0]['value'];
@@ -36,7 +39,6 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, Drupal\Core\Enti
     }
   }
 }
-
 
 /**
  * Implements hook_entity_view_mode_info_alter().
