@@ -24,6 +24,7 @@ abstract class ViewModeSelectorWidgetBase extends WidgetBase {
   public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
 
+    $field_settings = $field_definition->getSettings();
     $entity_type = $field_definition->getTargetEntityTypeId();
     $bundle = $field_definition->getTargetBundle();
 
@@ -32,7 +33,7 @@ abstract class ViewModeSelectorWidgetBase extends WidgetBase {
 
     // Reduce options by enabled view modes
     foreach (array_keys($view_modes) as $view_mode) {
-      if(isset($settings['view_modes'][$view_mode]['enable']) && $settings['view_modes'][$view_mode]['enable']) {
+      if(isset($field_settings['view_modes'][$view_mode]['enable']) && $field_settings['view_modes'][$view_mode]['enable']) {
         continue;
       }
       unset($view_modes[$view_mode]);
