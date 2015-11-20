@@ -24,9 +24,13 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, Drupal\Core\Enti
   foreach ($fields as $field_name => $field) {
 
     if ($field->getType() == 'view_mode_selector') {
-      if (!$langcode = $context['langcode']) {
+      if (isset($context['langcode'])) {
+        $langcode = $context['langcode'];
+      }
+      else {
         $langcode = $entity->language()->getId();
       }
+
       $items = $entity->getTranslation($langcode)->get($field_name)->getValue();
 
       if (isset($items[0]['value'])) {
