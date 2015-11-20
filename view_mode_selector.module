@@ -19,24 +19,16 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, Drupal\Core\Enti
   // a view mode selector field.
   $view_mode = 'default';
 
-  // Find a view mode selector field and change the view mode.
+  // Find the first view mode selector field and change the view mode.
   $fields = \Drupal::entityManager()->getFieldDefinitions($entity->getEntityTypeId(), $entity->bundle());
   foreach ($fields as $field_name => $field) {
-
-    if ($field->getType() == 'view_mode_selector') {
-      $langcode = isset($context['langcode']) ? $context['langcode'] : $entity->language->getId();
-
-      $items = $entity->getTranslation($langcode)->get($field_name)->getValue();
-
-      if (isset($items[0]['value'])) {
-        $view_mode = $items[0]['value'];
-
-        // It would not make sense to have multiple view mode selector
-        // fields so stop after the first was found.
-        return;
-      }
+    if ($field->getType() == 'view_mode_selector' && $field_value = $entity->{$field_name}->value) {
+      $view_mode = $field_value;
+      break;
     }
   }
+
+  return $view_mode;
 }
 
 /**
