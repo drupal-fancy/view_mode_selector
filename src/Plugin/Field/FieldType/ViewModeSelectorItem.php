@@ -18,12 +18,11 @@ use Drupal\Core\TypedData\DataDefinition;
  * @FieldType(
  *   id = "view_mode_selector",
  *   label = @Translation("View Mode Selector"),
- *   description = @Translation(""),
+ *   description = @Translation("This field stores entity view mode."),
  *   default_widget = "view_mode_selector_radios",
  *   default_formatter = "view_mode_selector",
  * )
  */
-
 class ViewModeSelectorItem extends FieldItemBase {
 
   /**
