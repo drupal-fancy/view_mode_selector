@@ -1,16 +1,18 @@
 <?php
 
-use \Drupal\Core\Url;
-
 /**
  * @file
  * Main file of View Mode Selector module.
  */
 
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Url;
+
 /**
  * Implements hook_entity_view_mode_alter().
  */
-function view_mode_selector_entity_view_mode_alter(&$view_mode, Drupal\Core\Entity\EntityInterface $entity, $context) {
+function view_mode_selector_entity_view_mode_alter(&$view_mode, EntityInterface $entity, $context) {
   if ($view_mode !== 'view_mode_selector') {
     return;
   }
@@ -70,7 +72,7 @@ function view_mode_selector_entity_view_mode_info_alter(&$view_modes) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function view_mode_selector_form_entity_view_display_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function view_mode_selector_form_entity_view_display_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form_object = $form_state->getFormObject();
   /** @var $view_display \Drupal\Core\Entity\Entity\EntityViewDisplay **/
   $view_display = $form_object->getEntity();
