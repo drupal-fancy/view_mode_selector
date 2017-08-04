@@ -77,10 +77,10 @@ function view_mode_selector_form_entity_view_display_edit_form_alter(&$form, \Dr
 
   if ($view_display->getMode() == 'view_mode_selector') {
     drupal_set_message(t('This is a placeholder view mode from the <a href="@view-mode-selector">View Mode Selector</a> module. It will be replaced with a selected view mode.', [
-      '@view-mode-selector' => Url::fromUri('https://www.drupal.org/project/view_mode_selector'),
+      '@view-mode-selector' => Url::fromUri('https://www.drupal.org/project/view_mode_selector')->toUriString(),
     ]), 'status');
     drupal_set_message(t('The field settings have been disabled by the <a href="@view-mode-selector">View Mode Selector</a> module.', [
-      '@view-mode-selector' => Url::fromUri('https://www.drupal.org/project/view_mode_selector'),
+      '@view-mode-selector' => Url::fromUri('https://www.drupal.org/project/view_mode_selector')->toUriString(),
     ]), 'warning');
     $form['fields']['#disabled'] = TRUE;
   }
