@@ -1,0 +1,25 @@
+field.value.view_mode_selector:
+  type: field.value.*
+  mapping:
+    value:
+      type: string
+
+field.field_settings.view_mode_selector:
+  type: field.field_settings.*
+  mapping:
+    view_modes:
+      type: sequence
+      sequence:
+        type: mapping
+        mapping:
+          enable:
+            type: boolean
+          hide_title:
+            type: boolean
+          icon:
+            type: mapping
+            mapping:
+              fids:
+                type: sequence
+                sequence:
+                  type: integer
