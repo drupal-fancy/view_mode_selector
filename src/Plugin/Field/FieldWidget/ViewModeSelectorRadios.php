@@ -21,10 +21,11 @@ class ViewModeSelectorRadios extends ViewModeSelectorWidgetBase {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+    $view_mode_keys = array_keys($this->viewModes);
     $element['value'] = $element + [
       '#type' => 'radios',
       '#options' => $this->viewModes,
-      '#default_value' => $items[$delta]->value ?: reset(array_keys($this->viewModes)),
+      '#default_value' => $items[$delta]->value ?: reset($view_mode_keys),
     ];
 
     return $element;
