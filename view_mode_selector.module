@@ -1,18 +1,18 @@
 <?php
 
+use \Drupal\Core\Url;
+use Drupal\field\FieldStorageConfigInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
+
 /**
  * @file
  * Main file of View Mode Selector module.
  */
 
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Url;
-
 /**
  * Implements hook_entity_view_mode_alter().
  */
-function view_mode_selector_entity_view_mode_alter(&$view_mode, EntityInterface $entity, $context) {
+function view_mode_selector_entity_view_mode_alter(&$view_mode, Drupal\Core\Entity\EntityInterface $entity, $context) {
   if ($view_mode !== 'view_mode_selector') {
     return;
   }
@@ -72,19 +72,66 @@ function view_mode_selector_entity_view_mode_info_alter(&$view_modes) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function view_mode_selector_form_entity_view_display_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  /** @var \Drupal\field_ui\Form\EntityViewDisplayEditForm $form_object */
+function view_mode_selector_form_entity_view_display_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   $form_object = $form_state->getFormObject();
-  /** @var \Drupal\Core\Entity\Entity\EntityViewDisplay $view_display */
+  /** @var $view_display \Drupal\Core\Entity\Entity\EntityViewDisplay **/
   $view_display = $form_object->getEntity();
 
   if ($view_display->getMode() == 'view_mode_selector') {
     drupal_set_message(t('This is a placeholder view mode from the <a href="@view-mode-selector">View Mode Selector</a> module. It will be replaced with a selected view mode.', [
-      '@view-mode-selector' => Url::fromUri('https://www.drupal.org/project/view_mode_selector')->toUriString(),
+      '@view-mode-selector' => Url::fromUri('https://www.drupal.org/project/view_mode_selector'),
     ]), 'status');
     drupal_set_message(t('The field settings have been disabled by the <a href="@view-mode-selector">View Mode Selector</a> module.', [
-      '@view-mode-selector' => Url::fromUri('https://www.drupal.org/project/view_mode_selector')->toUriString(),
+      '@view-mode-selector' => Url::fromUri('https://www.drupal.org/project/view_mode_selector'),
     ]), 'warning');
     $form['fields']['#disabled'] = TRUE;
   }
+}
+
+/**
+ * Implements hook_field_views_data().
+ */
+function view_mode_selector_field_views_data(FieldStorageConfigInterface $field) {
+  $data = views_field_default_views_data($field);
+
+  foreach ($data as $table_name => $table_data) {
+    foreach ($table_data as $field_name => $field_data) {
+      if (isset($field_data['filter']) && $field_name != 'delta' && $field->getType() == 'view_mode_selector') {
+        $data[$table_name][$field_name]['filter']['id'] = 'list_view_mode_selector';
+      }
+    }
+  }
+
+  return $data;
+}
+
+/**
+ * Get the enabled view modes for a particular view mode selector field.
+ */
+function view_mode_selector_get_enabled_view_modes(FieldDefinitionInterface $field_definition, $bundle = NULL) {
+  $field_settings = $field_definition->getSettings();
+  $entity_type = $field_definition->getTargetEntityTypeId();
+
+  if ($bundle) {
+    $original_view_modes = \Drupal::entityManager()->getViewModeOptionsByBundle($entity_type, $bundle);
+  }
+  else {
+    $original_view_modes = \Drupal::entityManager()->getViewModeOptions($entity_type);
+  }
+
+  $view_modes = [];
+
+  // Reduce options by enabled view modes.
+  foreach (array_keys($original_view_modes) as $view_mode) {
+    if (isset($field_settings['view_modes'][$view_mode]['enable']) && $field_settings['view_modes'][$view_mode]['enable']) {
+      $view_modes[$view_mode] = $original_view_modes[$view_mode];
+    }
+  }
+
+  // Show all view modes in widget when no view modes are enabled.
+  if (!count($view_modes)) {
+    $view_modes = $original_view_modes;
+  }
+
+  return $view_modes;
 }
