@@ -18,12 +18,11 @@ use Drupal\Core\TypedData\DataDefinition;
  * @FieldType(
  *   id = "view_mode_selector",
  *   label = @Translation("View Mode Selector"),
- *   description = @Translation(""),
+ *   description = @Translation("This field stores entity view mode."),
  *   default_widget = "view_mode_selector_radios",
  *   default_formatter = "view_mode_selector",
  * )
  */
-
 class ViewModeSelectorItem extends FieldItemBase {
 
   /**
@@ -96,7 +95,7 @@ class ViewModeSelectorItem extends FieldItemBase {
       $element['view_modes'][$view_mode_id]['enable'] = [
         '#type' => 'checkbox',
         '#title' => $view_mode_label . ' (' . $view_mode_id . ')',
-        '#default_value' => $settings['view_modes'][$view_mode_id]['enable'] ?: FALSE,
+        '#default_value' => isset($settings['view_modes'][$view_mode_id]) && $settings['view_modes'][$view_mode_id]['enable'] ?: FALSE,
       ];
 
       // Allow uploading an icon and hide the title for view modes when radio widget is used.
@@ -106,7 +105,7 @@ class ViewModeSelectorItem extends FieldItemBase {
         $element['view_modes'][$view_mode_id]['hide_title'] = [
           '#type' => 'checkbox',
           '#title' => t('Hide title'),
-          '#default_value' => $settings['view_modes'][$view_mode_id]['hide_title'] ?: FALSE,
+          '#default_value' => isset($settings['view_modes'][$view_mode_id]) && $settings['view_modes'][$view_mode_id]['hide_title'] ?: FALSE,
           '#states' => [
             'visible' => [
               'input[name="field[settings][view_modes][' . $view_mode_id . '][enable]"]' => ['checked' => TRUE],
@@ -119,7 +118,7 @@ class ViewModeSelectorItem extends FieldItemBase {
           '#title' => t('Icon'),
           '#description' => t('An icon which can be used for a view mode preview.'),
           '#upload_location' => 'public://view-mode-selector/' . $entity_type,
-          '#default_value' => $settings['view_modes'][$view_mode_id]['icon'] ?: 0,
+          '#default_value' => isset($settings['view_modes'][$view_mode_id]) && $settings['view_modes'][$view_mode_id]['icon'] ?: 0,
           '#hide' => TRUE,
           '#states' => [
             'visible' => [
