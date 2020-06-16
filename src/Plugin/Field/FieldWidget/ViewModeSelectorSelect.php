@@ -1,7 +1,4 @@
-<?php /**
- * @file
- * Contains \Drupal\view_mode_selector\Plugin\Field\FieldWidget\ViewModeSelectorSelect.
- */
+<?php
 
 namespace Drupal\view_mode_selector\Plugin\Field\FieldWidget;
 
@@ -22,10 +19,10 @@ class ViewModeSelectorSelect extends ViewModeSelectorWidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $view_mode_keys = array_keys($this->viewModes);
     $element['value'] = $element + [
-        '#type' => 'select',
-        '#options' => $this->viewModes,
-        '#default_value' => $items[$delta]->value ?: reset($view_mode_keys),
-      ];
+      '#type' => 'select',
+      '#options' => $this->viewModes,
+      '#default_value' => $items[$delta]->value ?: reset($view_mode_keys),
+    ];
     return $element;
   }
 }

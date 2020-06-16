@@ -1,7 +1,4 @@
-<?php /**
- * @file
- * Contains \Drupal\view_mode_selector\Plugin\Field\FieldWidget\ViewModeSelectorRadios.
- */
+<?php
 
 namespace Drupal\view_mode_selector\Plugin\Field\FieldWidget;
 
