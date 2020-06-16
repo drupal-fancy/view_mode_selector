@@ -2,11 +2,11 @@
 
 namespace Drupal\view_mode_selector\Plugin\Field\FieldWidget;
 
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Renderer;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\file\FileInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -26,6 +26,11 @@ class ViewModeSelectorIcons extends ViewModeSelectorRadios {
   protected $renderer;
 
   /**
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * ViewModeSelectorIcons constructor.
    *
    * @param string $plugin_id
@@ -33,19 +38,20 @@ class ViewModeSelectorIcons extends ViewModeSelectorRadios {
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
    * @param array $settings
    * @param array $third_party_settings
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository
    * @param \Drupal\Core\Render\RendererInterface $renderer
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, EntityManagerInterface $entity_manager, RendererInterface $renderer) {
-    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings, $entity_manager);
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, EntityDisplayRepositoryInterface $entity_display_repository, EntityTypeManagerInterface $entity_type_manager, RendererInterface $renderer) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings, $entity_display_repository);
     $this->renderer = $renderer;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($plugin_id, $plugin_definition, $configuration['field_definition'], $configuration['settings'], $configuration['third_party_settings'], $container->get('entity.manager'), $container->get('renderer'));
+    return new static($plugin_id, $plugin_definition, $configuration['field_definition'], $configuration['settings'], $configuration['third_party_settings'], $container->get('entity_display.repository'), $container->get('entity_type.manager'), $container->get('renderer'));
   }
 
   /**
@@ -74,7 +80,7 @@ class ViewModeSelectorIcons extends ViewModeSelectorRadios {
 
       if (!empty($settings['view_modes'][$view_mode]['icon'][0])) {
         /** @var FileInterface $icon */
-        $icon = $this->entityManager->getStorage('file')->load($settings['view_modes'][$view_mode]['icon'][0]);
+        $icon = $this->entityTypeManager->getStorage('file')->load($settings['view_modes'][$view_mode]['icon'][0]);
 
         if (!$icon) {
           continue;

@@ -22,7 +22,7 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, EntityInterface 
   $view_mode = 'default';
 
   // Find the first view mode selector field and change the view mode.
-  $fields = \Drupal::entityManager()->getFieldDefinitions($entity->getEntityTypeId(), $entity->bundle());
+  $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity->getEntityTypeId(), $entity->bundle());
   foreach ($fields as $field_name => $field) {
     if ($field->getType() == 'view_mode_selector' && $field_value = $entity->{$field_name}->value) {
       $view_mode = $field_value;
@@ -38,7 +38,7 @@ function view_mode_selector_entity_view_mode_alter(&$view_mode, EntityInterface 
  */
 function view_mode_selector_entity_view_mode_info_alter(&$view_modes) {
   // Load all view mode selector fields.
-  $storage = \Drupal::entityManager()->getStorage('field_config');
+  $storage = \Drupal::entityTypeManager()->getStorage('field_config');
   $field_ids = \Drupal::entityQuery('field_config')
     ->condition('field_type', 'view_mode_selector')
     ->execute();
@@ -51,7 +51,7 @@ function view_mode_selector_entity_view_mode_info_alter(&$view_modes) {
     $entity_type = $field->getTargetEntityTypeId();
 
     // Load the view mode selector view mode and add it to the list.
-    $storage = \Drupal::entityManager()->getStorage('entity_view_mode');
+    $storage = \Drupal::entityTypeManager()->getStorage('entity_view_mode');
     $id = $entity_type . '.view_mode_selector';
     $view_mode = $storage->load($id);
     if (!$view_mode) {
@@ -79,12 +79,12 @@ function view_mode_selector_form_entity_view_display_edit_form_alter(&$form, For
   $view_display = $form_object->getEntity();
 
   if ($view_display->getMode() == 'view_mode_selector') {
-    drupal_set_message(t('This is a placeholder view mode from the <a href="@view-mode-selector">View Mode Selector</a> module. It will be replaced with a selected view mode.', [
+    \Drupal::messenger()->addMessage(t('This is a placeholder view mode from the <a href="@view-mode-selector">View Mode Selector</a> module. It will be replaced with a selected view mode.', [
       '@view-mode-selector' => Url::fromUri('https://www.drupal.org/project/view_mode_selector')->toUriString(),
-    ]), 'status');
-    drupal_set_message(t('The field settings have been disabled by the <a href="@view-mode-selector">View Mode Selector</a> module.', [
+    ]));
+    \Drupal::messenger()->addWarning(t('The field settings have been disabled by the <a href="@view-mode-selector">View Mode Selector</a> module.', [
       '@view-mode-selector' => Url::fromUri('https://www.drupal.org/project/view_mode_selector')->toUriString(),
-    ]), 'warning');
+    ]));
     $form['fields']['#disabled'] = TRUE;
   }
 }

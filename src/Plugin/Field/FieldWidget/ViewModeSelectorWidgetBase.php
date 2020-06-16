@@ -2,7 +2,7 @@
 
 namespace Drupal\view_mode_selector\Plugin\Field\FieldWidget;
 
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -21,9 +21,9 @@ abstract class ViewModeSelectorWidgetBase extends WidgetBase implements Containe
   protected $viewModes = [];
 
   /**
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
    */
-  protected $entityManager;
+  protected $entityDisplayRepository;
 
   /**
    * ViewModeSelectorWidgetBase constructor.
@@ -33,18 +33,18 @@ abstract class ViewModeSelectorWidgetBase extends WidgetBase implements Containe
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
    * @param array $settings
    * @param array $third_party_settings
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, EntityManagerInterface $entity_manager) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, EntityDisplayRepositoryInterface $entity_display_repository) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
-    $this->entityManager = $entity_manager;
+    $this->entityDisplayRepository = $entity_display_repository;
 
     $field_settings = $field_definition->getSettings();
     $entity_type = $field_definition->getTargetEntityTypeId();
     $bundle = $field_definition->getTargetBundle();
 
     // Get all view modes for the current bundle.
-    $view_modes = $this->entityManager->getViewModeOptionsByBundle($entity_type, $bundle);
+    $view_modes = $this->entityDisplayRepository->getViewModeOptionsByBundle($entity_type, $bundle);
 
     // Reduce options by enabled view modes
     foreach (array_keys($view_modes) as $view_mode) {
@@ -56,7 +56,7 @@ abstract class ViewModeSelectorWidgetBase extends WidgetBase implements Containe
 
     // Show all view modes in widget when no view modes are enabled.
     if (!count($view_modes)) {
-      $view_modes = $this->entityManager->getViewModeOptionsByBundle($entity_type, $bundle);
+      $view_modes = $this->entityDisplayRepository->getViewModeOptionsByBundle($entity_type, $bundle);
     }
 
     $this->viewModes = $view_modes;
@@ -66,6 +66,6 @@ abstract class ViewModeSelectorWidgetBase extends WidgetBase implements Containe
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($plugin_id, $plugin_definition, $configuration['field_definition'], $configuration['settings'], $configuration['third_party_settings'], $container->get('entity.manager'));
+    return new static($plugin_id, $plugin_definition, $configuration['field_definition'], $configuration['settings'], $configuration['third_party_settings'], $container->get('entity_display.repository'));
   }
 }

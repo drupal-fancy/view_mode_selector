@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\view_mode_selector\Plugin\Field\FieldFormatter\ViewModeSelectorFormatter.
- */
-
 namespace Drupal\view_mode_selector\Plugin\Field\FieldFormatter;
 
 use Drupal\text\Plugin\Field\FieldFormatter\TextDefaultFormatter;

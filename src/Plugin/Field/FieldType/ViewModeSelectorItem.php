@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\options\Type\ListStringItem.
- */
-
 namespace Drupal\view_mode_selector\Plugin\Field\FieldType;
 
 use Drupal\Core\Field\FieldItemBase;
@@ -80,7 +75,7 @@ class ViewModeSelectorItem extends FieldItemBase {
     $bundle = $this->definition->getFieldDefinition()->getTargetBundle();
 
     // Get all view modes for the current bundle.
-    $view_modes = \Drupal::entityManager()->getViewModeOptionsByBundle($entity_type, $bundle);
+    $view_modes = \Drupal::service('entity_display.repository')->getViewModeOptionsByBundle($entity_type, $bundle);
 
     foreach ($view_modes as $view_mode_id => $view_mode_label) {
       if (!isset($element['view_modes'])) {
