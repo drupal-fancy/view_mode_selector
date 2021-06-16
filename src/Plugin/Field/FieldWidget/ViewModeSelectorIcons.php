@@ -141,7 +141,7 @@ class ViewModeSelectorIcons extends ViewModeSelectorRadios {
       }
 
       // Use the generated markup as our label value.
-      $element['value']['#options'][$view_mode] = implode($output, '');
+      $element['value']['#options'][$view_mode] = implode('', $output);
     }
 
     return $element;
