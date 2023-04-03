@@ -1,6 +1,5 @@
 name: View Mode Selector
 type: module
 description: Provides a new field type for changing the view mode of an entity.
-core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^9 || ^10
 package: Fields

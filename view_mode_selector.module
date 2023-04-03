@@ -40,6 +40,7 @@ function view_mode_selector_entity_view_mode_info_alter(&$view_modes) {
   // Load all view mode selector fields.
   $storage = \Drupal::entityTypeManager()->getStorage('field_config');
   $field_ids = \Drupal::entityQuery('field_config')
+    ->accessCheck(FALSE)
     ->condition('field_type', 'view_mode_selector')
     ->execute();
 
