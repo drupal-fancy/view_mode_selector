@@ -97,6 +97,17 @@ class ViewModeSelectorItem extends FieldItemBase {
 //      if ($instance['widget']['type'] == 'view_mode_selector_radios') {
         $element['view_modes'][$view_mode_id]['prefix']['#markup'] = '<div class="settings">';
 
+        $element['view_modes'][$view_mode_id]['override_title'] = [
+          '#type' => 'textfield',
+          '#title' => $this->t('Override title'),
+          '#default_value' => $settings['view_modes'][$view_mode_id]['override_title'] ?? "",
+          '#states' => [
+            'visible' => [
+              'input[name="field[settings][view_modes][' . $view_mode_id . '][enable]"]' => ['checked' => TRUE],
+            ],
+          ],
+        ];
+
         $element['view_modes'][$view_mode_id]['hide_title'] = [
           '#type' => 'checkbox',
           '#title' => t('Hide title'),
