@@ -16,6 +16,8 @@ field.field_settings.view_mode_selector:
             type: boolean
           hide_title:
             type: boolean
+          override_title:
+            type: string
           icon:
             type: mapping
             mapping:

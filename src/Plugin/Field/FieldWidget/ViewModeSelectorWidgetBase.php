@@ -49,6 +49,10 @@ abstract class ViewModeSelectorWidgetBase extends WidgetBase implements Containe
     // Reduce options by enabled view modes
     foreach (array_keys($view_modes) as $view_mode) {
       if (isset($field_settings['view_modes'][$view_mode]['enable']) && $field_settings['view_modes'][$view_mode]['enable']) {
+        if (isset($field_settings['view_modes'][$view_mode]['override_title']) && strlen($field_settings['view_modes'][$view_mode]['override_title']) > 0) {
+          $view_modes[$view_mode] = $field_settings['view_modes'][$view_mode]['override_title'];
+        }
+
         continue;
       }
       unset($view_modes[$view_mode]);
